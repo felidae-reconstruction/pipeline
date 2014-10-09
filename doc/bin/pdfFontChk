@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# check specified file for non-scalable fonts
+set -e -o pipefail
+
+# awk program to check fonts
+fontChecker='
+NR <= 2 {next}
+{font=gensub(" *$","","g",substr($0, 38, 16))}
+!((font~/^Type 1.*/) || (font~/.*TrueType$/)) {
+    print "non-scalable font in PDF:",$0 >"/dev/stderr";
+    errCnt++;
+}
+END {
+    if (errCnt > 0) {
+        exit(1);
+    }
+}
+'
+
+fontChk() {
+    pdf="$1"
+    pdffonts "$pdf" | gawk "$fontChecker"
+}
+
+for pdf in $* ; do
+    fontChk "$pdf"
+done

@@ -1,0 +1,131 @@
+\documentclass{article}
+\usepackage{xcolor}
+\usepackage[cm]{fullpage} % narrow margins
+
+% reference to a variable in a path
+\newcommand\var[1]{{\tt \$\{#1\}}}
+
+% inline code font
+\newcommand\code[1]{{\tt #1}}
+
+% tight itemized list
+\newenvironment{tightitemize}{%
+\begin{itemize}
+  \setlength{\itemsep}{1pt}%
+  \setlength{\parskip}{0pt}%
+  \setlength{\parsep}{0pt}%
+}{\end{itemize}}
+
+
+\title{Design of Felidae Pipeline}
+\author{}
+\date{}
+\begin{document}
+\maketitle
+\section{Introduction}
+
+This document describes the design of the Felidae pipeline.
+The goal is to have file system and code structure to handle:
+
+\begin{itemize}
+\item Multiple organism
+\item Different assemblies for those organism
+\item Assembly-specific tracks, computed or imported only for that assembly
+      and independent of other organisms (assembly de novo annotations).
+\item Comparative genomics alignments between multiple assemblies
+\item Annotations produced by the comparative genomics alignments and
+      mapping of de novo annotations between assemblies.
+\item Ability to rsync full data tree between Dobzhansky center and UCSC.
+\end{itemize}
+
+Key concepts used in defining this organization:
+\begin{itemize}
+\item High-level grouping by data flow: For instance, assembly de novo tracks
+      are only dependent on an assembly.  However, comparative genomics
+      alignments depend on multiple assemblies.
+\item Large data trees must be share by all people working on the project, but
+      smaller code and documentation trees are be kept under source control.
+      Note that a check out source trees can NOT be shared by different people.
+\item Versioning of data is used to support multiple instances of the similar
+      data.  For instance new assemblies of the same organism, new
+      comparative alignments involving different assemblies, or alignments
+      create with different parameters or version of the sources.
+\item Versions can be either official versions (Felis catus version would be
+      \code{6.2}) or ISO format date stamps (\code{2014-10-03}).  The version number is
+      use to name directories.
+\item Version numbers need to be at lower levels of the tree to support
+      combining of data in different ways.  This also means that only one
+      person will be working in a versioned directory, so the shared data
+      tree should not cause problems.
+\item Source tree should have all documentation, code, and configure files
+      required to produce the data tree.  Keeping this under source control
+      aids in tracking history and ensuring computational reproducibility.  It
+      also allows others to see how the assemblies are constructed without
+      need to have access to the full data tree.  This separation supports
+      purging some results that are no longer needed while keeping a record of
+      how they are create.
+\item Data tree contains all download or produced data files as well as log
+      files.
+\end{itemize}
+
+\section{Organization of file hierarchy}
+
+There are two file hierarchies used by the system.  The {\it pipeline} tree,
+which is kept under source control, and the {\it data} tree, which is not
+under source control.  One copy of the {\it data} tree exists at each site and
+it is shared by all people running analysis.  A copy of the {\it pipeline}
+tree is check out buy each individual in their own directory.  It only
+contains code and scripts.
+
+The following variables used in specifying the layout in a generic way.  These
+defined the type of the value, not he exact value, and hence the variable can
+occur multiple times in the tree.
+
+\begin{itemize}
+\item \var{dateRoot} - The top of the data tree. The location of will vary between Dobzhansky
+    and UCSC file systems, however the contents will be the same.
+\item \var{version} - This is used were a version number is to be insert.  Version
+    can be an official release version (e.g. \code{6.2}) or a date stamp (e.g. \code{2014-10-06}).
+\item \var{organism} - Scientific name of organism (e.g. \code{Felis\_catus}).
+\item \var{name} - Various names, use to identify particular experiments in an
+  human-intuitive way.  This should be correctly capitalized with underscore characters
+  substituted for spaces.
+\end{itemize}
+
+The {\it data} tree it contains all input files, results, and logs for all
+Felidae analysis.  Scripts to run each analysis are keep in parallel
+directories in the {\it pipeline} tree.  General structure of data tree is:
+\begin{tightitemize}
+\item \code{\var{dataRoot}/assemblies/\var{organism}/\var{version}/} - per-assembly data
+  \begin{tightitemize}
+  \item \code{genome/} - all genome sequence files, including original and repeat masked files
+  \item \code{tracks/\var{name}/} - tracks that are not dependent on any other assembly. External data, such
+    as proteins, maybe used.
+  \end{tightitemize}
+\item \code{\var{dataRoot}/comparative/\var{name}/\var{version}/} - a given run of cactus
+  \begin{tightitemize}
+  \item \code{cactus/} - cactus runs and resulting HAL file
+  \item \code{tracks/\var{name}/} - tracks that are created through comparative
+    analysis.
+  \end{tightitemize}
+\item \code{\var{dataRoot}/analysis/\var{name}/\var{version}/}
+\end{tightitemize}
+% FIXME: need a misc data directory for things like sysprot
+
+The {\it pipeline} tree is stored in a {\it git} repository at {\it github}
+\footnote{\code{https://github.com/felidae-reconstruction/pipeline.git}}.
+This tree contains only code, configuration and documentation, no input or
+output files.  The \code{experiments} directory mirrors the {\it data} tree
+and the scripts that run the experiments create the directory under
+\var{dataRoot} as needed.
+
+\begin{tightitemize}
+\item \code{pipeline/experiments/}
+  \begin{tightitemize}
+  \item \code{\var{dataRoot}/assemblies/\var{organism}/\var{version}/}
+  \item \code{\var{dataRoot}/comparative/\var{name}/\var{version}/}
+  \item \code{\var{dataRoot}/analysis/\var{name}/\var{version}/}
+  \end{tightitemize}
+\end{tightitemize}
+
+\end{document}
