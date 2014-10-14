@@ -6,7 +6,7 @@ import subprocess
 import sys
 
 parser = SafeConfigParser()
-parser.read('../pipeline.config')
+parser.read('../etc/pipeline.config')
 
 DATA_ROOT = parser.get('environment','DATA_ROOT')
 ORGANISM = parser.get('environment','ORGANISM')
