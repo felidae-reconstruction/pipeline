@@ -20,13 +20,6 @@ def run_gcPercent(fasta, twobit, path_to_results):
 	subprocess.call(" ".join(params), shell=True)
 	return wig
 
-def run_faSize(fasta, path_to_results):
-	check_existence_or_raise(fasta)
-	sizes=os.path.join(path_to_results, get_name(fasta)+'.sizes')
-	params = ['faSize', '-detailed', fasta, '>', sizes]
-	subprocess.call(" ".join(params), shell=True)
-	return sizes
-
 def run_wigToBigWig(fasta, wig, sizes, path_to_results):
 	check_existence_or_raise(wig)
 	bigWig=os.path.join(path_to_results, 'gc5Base.'+get_name(fasta)+'.bw')
