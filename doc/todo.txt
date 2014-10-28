@@ -1,0 +1,11 @@
+* tools for getting some statistics on rearrangements, also that points out
+* where `interesting' rearrangements; integrate to hal tools
+
+* the best assembly way to tell assembly errors from evolution to transmap
+* genes -> transmap of genes the  way of alignment validation
+
+* include the assembly of felis silvestris to the alignment
+    - transfrom the alignments from Chromosmer to fasta files
+    - add to alignment
+
+*   add dog to alignment
