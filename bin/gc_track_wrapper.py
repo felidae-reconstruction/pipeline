@@ -4,6 +4,7 @@ from ConfigParser import SafeConfigParser
 import os
 import subprocess
 import sys
+import gc_track_runner
 
 from utils import *
 
@@ -25,13 +26,12 @@ def get_fasta_files_from_dir(path) :
 
 
 def run_gc_track() :
-	if NAME != 'gc' :
-		print 'config file is not for gc track'
-		print 'done.'
-	print 'starting wrapper for gc track from', sys.argv[0], '...'
-	fasta = os.path.join(PATH_TO_FASTA_DIR, ORGANISM+'.fa')
-	params = ['./gc_track_runner.py', fasta, PATH_TO_OUTPUT] 
-	subprocess.call(" ".join(params), shell=True)
+    if NAME != 'gc':
+        print 'config file is not for gc track'
+        print 'done.'
+    print 'starting wrapper for gc track from', sys.argv[0], '...'
+    fasta = os.path.join(PATH_TO_FASTA_DIR, ORGANISM+'.fa')
+    gc_track_runner.run(fasta, PATH_TO_OUTPUT)
 
 if __name__ == '__main__' :
 	run_gc_track()

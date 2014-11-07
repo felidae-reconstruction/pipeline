@@ -4,6 +4,7 @@ from ConfigParser import SafeConfigParser
 import os
 import subprocess
 import sys
+import cactus_runner
 
 from utils import *
 
@@ -20,8 +21,7 @@ def run_cactus() :
     config = os.path.join(PATH_TO_WORKING_DIR, 'cactus.config')
     check_existence_or_raise(config)
     hal = os.path.join(PATH_TO_WORKING_DIR, NAME+'_'+VERSION+'.hal')
-    params = ['./cactus_runner.py', config, PATH_TO_WORKING_DIR, hal]
-    subprocess.call(" ".join(params), shell=True)
+    cactus_runner.run(config, PATH_TO_WORKING_DIR, hal)
 
 if __name__ == '__main__' :
 	run_cactus()

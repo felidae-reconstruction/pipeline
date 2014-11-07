@@ -16,11 +16,17 @@ def draw_distr(lengths,coverages,name):
     plt.savefig(pp, format='pdf')
     pp.close()
 
-def extract_coverage(file):
+def save_entries(entries,name):
+    with open(name, 'w') as f:
+        for e in entries:
+            f.write(e)
+
+def extract_coverage(file, save_top_duplicated_entries, n=10):
     print utils.get_time()
     print 'loading the data from file...'
     covs=[]
     lengths=[]
+    lines=[]
     with open(file,'r') as f:
         data = f.readline()
         while data:
@@ -33,7 +39,16 @@ def extract_coverage(file):
             coverage = int(entries[3])
             covs.append(coverage)
             lengths.append(length)
+            lines.append(data)
             data = f.readline()
+
+    if save_top_duplicated_entries:
+        z = zip(lengths,lines)
+        sorted_z = sorted(z, key=lambda x: x[0])
+        sorted_z=sorted_z[::-1]
+        print [i for i,_ in sorted_z[:n]]
+        print [j for _,j in sorted_z[:n]]
+        save_entries([j for _,j in sorted_z[:n]],'top_entries.bed')
     return covs, lengths
 
 def count_lengths_distribution_for_coverage(c,z):
@@ -64,6 +79,6 @@ if __name__ == '__main__' :
         print 'script for calculation and drawing the length distribution for different coverage values'
         print 'USAGE:', sys.argv[0], 'file in bed format having four columns - the last one is the coverage values'
     file = sys.argv[1]
-    covs,lengths = extract_coverage(file)
+    covs,lengths = extract_coverage(file, True)
     print utils.get_time()
-    process_coverage(covs,lengths)
+    #process_coverage(covs,lengths)
