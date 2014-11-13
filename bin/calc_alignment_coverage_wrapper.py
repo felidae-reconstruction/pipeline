@@ -16,6 +16,7 @@ SPECIE_TARGET = parser.get('environment','SPECIE_TARGET')
 NAME=parser.get('environment','NAME')
 PATH_TO_HAL = parser.get('environment','PATH_TO_HAL') 
 PATH_TO_FASTA = parser.get('environment','PATH_TO_FASTA')  
+PATH_TO_BED = parser.get('environment','PATH_TO_BED')  
 PATH_TO_OUTPUT = parser.get('environment','PATH_TO_OUTPUT')  
 PATH_TO_OUTPUT = os.path.join(PATH_TO_OUTPUT, get_time())
 
@@ -32,7 +33,7 @@ def run_coverage_calc():
     print 'starting wrapper for alignment coverage from', sys.argv[0], '...'
     create_dir_if_not_exists(PATH_TO_OUTPUT)
     prefix = os.path.join(PATH_TO_OUTPUT, 'coverage.'+SPECIE_SOURCE+'.'+SPECIE_TARGET)
-    calc_alignment_coverage_runner.run(PATH_TO_HAL,SPECIE_SOURCE,PATH_TO_FASTA, SPECIE_TARGET,prefix) 
+    calc_alignment_coverage_runner.run(PATH_TO_HAL,SPECIE_SOURCE,PATH_TO_BED,PATH_TO_FASTA,SPECIE_TARGET,prefix) 
 
 if __name__ == '__main__' :
 	run_coverage_calc()

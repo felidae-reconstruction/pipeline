@@ -81,4 +81,4 @@ if __name__ == '__main__' :
     file = sys.argv[1]
     covs,lengths = extract_coverage(file, True)
     print utils.get_time()
-    #process_coverage(covs,lengths)
+    process_coverage(covs,lengths)
