@@ -62,12 +62,12 @@ def parse_homology(homology_file):
 '''
 all_genes is the dictionary of {chromosome=[(name,strand)]} for the genome genome_name
 homology is the homology relationship {gene1=gene2}. according to this mapping the genes in the genome genome_name are renamed
-coding_table is the ordered list [gene]. indexes of the genes will be representations of genes for the grimm_synt input
+coding_table is the ordered list [gene]. indexes of the genes will be representations of genes for the grimm input
 '''
-def output_genes(genome_name, all_genes, homology, file, coding_table, rename=False) :
+def output_genes(genome_name, all_genes, homology, file) :
     num = 0
-    with open(file, 'a') as f:
-        old_names = homology.keys()
+    coding_table = []
+    with open(file, 'w') as f:
         new_names = homology.values()
         f.write('>'+genome_name+'\n')
         for chromosome in all_genes :
@@ -77,44 +77,47 @@ def output_genes(genome_name, all_genes, homology, file, coding_table, rename=Fa
             for pair in genes:
                 name = pair[0]
                 sign = ''
-                if rename :
-                    if name in old_names :
+                if name in new_names :
+                        if pair[1] == '-':
+                            sign = '-'
+                        num += 1
+                        end_of_chromosome = '$\n'
+                        coding_table.append(name)
+                        code =len( coding_table)
+                        f.write(sign+str(code)+' ')
+            f.write(end_of_chromosome)
+    print 'num', num
+    return coding_table
+           
+def output_genes_and_rename(genome_name, all_genes, homology, coding_table, file):
+    num = 0
+    with open(file, 'a') as f:
+        old_names = homology.keys()
+        f.write('>'+genome_name+'\n')
+        for chromosome in all_genes :
+            end_of_chromosome = ''
+            #f.write('>'+chromosome+'\n')
+            genes = all_genes[chromosome]
+            for pair in genes:
+                name = pair[0]
+                sign = ''
+                if name in old_names :
                         name = homology[name]
                         if pair[1] == '-':
                             sign = '-'
                         num += 1
                         end_of_chromosome = '$\n'
-                        if not name in coding_table :
-                            print 'not in coding table!', name
+                        if (not name in coding_table) :
+                            print name, 'is not in coding table!'
                             exit()
-                        code = coding_table.index(name) + 1
-                        f.write(sign+str(code)+' ')
-                else : 
-                    if name in new_names :
-                        if pair[1] == '-':
-                            sign = '-'
-                        num += 1
-                        end_of_chromosome = '$\n'
-                        if not name in coding_table :
-                            print 'not in coding table!', name
-                            exit()
-                        code = coding_table.index(name) + 1
+                        code = coding_table.index(name) + 1 
                         f.write(sign+str(code)+' ')
             f.write(end_of_chromosome)
-    print 'num', num
            
 '''
 genomes is the dictionary of genes related to chromosomes {chromosome=[(name,strand)]}
 code genes with integer numbers
 '''
-def code_genes(genome) :
-    coding_table = []
-    for c in genome:
-        for gene in genome[c] :
-            coding_table.append(gene[0])
-    return coding_table
-
-
 def save_coding_table(coding_table, file):
     i = 1
     with open(file, 'w') as f:
@@ -162,15 +165,14 @@ if __name__ == '__main__':
     print len(homology.keys())
     print len(homology.values())
     first_specie_genes = parse_genes(sys.argv[2])
-    coding_table = code_genes(first_specie_genes)
-    print coding_table[:10]
     second_specie_genes = parse_genes(sys.argv[3])
     #homology = reduce_homology(first_specie_genes, second_specie_genes, homology)
     directory = sys.argv[4]
     utils.create_dir_if_not_exists(directory)
     file = os.path.join(directory,'grimm.input')
-    output_genes('genome1', first_specie_genes, homology, file, coding_table)
-    output_genes('genome2', second_specie_genes, homology, file, coding_table, True)
+    coding_table = output_genes('genome1', first_specie_genes, homology, file)
+    output_genes_and_rename('genome2', second_specie_genes, homology, coding_table, file)
+    print coding_table[:10]
     coding_table_file = os.path.join(directory,'coding_table.txt')
     save_coding_table(coding_table, coding_table_file)
 
