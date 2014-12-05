@@ -157,23 +157,44 @@ def reduce_homology(first_specie_genes, second_specie_genes, homology) :
     return homology
 
 
-if __name__ == '__main__':
-    if len(sys.argv) < 5:
-        print 'USAGE:', sys.argv[0], 'homology', 'first_specie_gff', 'second_specie_gff', 'output_directory'
+def generate_for_grimm() :
+    if len(sys.argv) < 6:
+        print 'USAGE:', sys.argv[0], 'grimm', 'homology_file', 'first_specie_gff', 'second_specie_gff', 'output_directory'
         exit()
-    homology = parse_homology(sys.argv[1])
-    print len(homology.keys())
-    print len(homology.values())
-    first_specie_genes = parse_genes(sys.argv[2])
-    second_specie_genes = parse_genes(sys.argv[3])
+    print utils.get_time()
+    print 'parsing homology file...'
+    homology = parse_homology(sys.argv[2])
+    print utils.get_time()
+    print 'parsing genes for the first species...'
+    first_specie_genes = parse_genes(sys.argv[3])
+    print utils.get_time()
+    print 'parsing genes for the second species...'
+    second_specie_genes = parse_genes(sys.argv[4])
     #homology = reduce_homology(first_specie_genes, second_specie_genes, homology)
-    directory = sys.argv[4]
+    directory = sys.argv[5]
     utils.create_dir_if_not_exists(directory)
     file = os.path.join(directory,'grimm.input')
+    print utils.get_time()
+    print 'writing genes to file...'
     coding_table = output_genes('genome1', first_specie_genes, homology, file)
     output_genes_and_rename('genome2', second_specie_genes, homology, coding_table, file)
-    print coding_table[:10]
     coding_table_file = os.path.join(directory,'coding_table.txt')
+    print utils.get_time()
+    print 'saving coding table...'
     save_coding_table(coding_table, coding_table_file)
+    print utils.get_time()
+    print 'done.'
+
+def generate_for_grimm_synt() :
+    pass
 
 
+if __name__ == '__main__':
+    if len(sys.argv) < 2 :
+        print 'you should specify either grimm or grimm_synt parameter'
+        exit()
+
+    if sys.argv[1] == 'grimm' :
+        generate_for_grimm()
+    elif sys.argv[1] == 'grimm_synt' :
+        generate_for_grimm_synt()
