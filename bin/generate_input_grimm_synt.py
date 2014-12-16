@@ -48,7 +48,9 @@ def parse_maf(maf_file, sizes) :
                     blocks.append(Block(id, hits))
                     hits = []
             if len(data) and data[0] == 's':
-               specie, chrom = data[1].split('.')
+               l = data[1].split('.')
+               specie = l[0]
+               chrom = '.'.join(l[1:])
                start = int(data[2])
                length = int(data[3])
                strand = data[4]
