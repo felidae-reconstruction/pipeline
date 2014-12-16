@@ -23,6 +23,8 @@ def parse_list_of_steps(file_steps) :
             #print second_id
             second_id = int(second_id[1:-2])
             all_steps.append([first_id, second_id])
+            if 'Destination' in line[-1]:
+                line = line[:-1]
             if line[-1] == 'Reversal':
                 reversals.append([step_id, first_id, second_id])
             elif line[-1] == 'Translocation':
@@ -141,7 +143,8 @@ def get_list_of_block_ids_from_fissions(fissions, grimm):
     return result
 
 def process_fissions(grimm, fissions, all_segments, mgr_macro, genome_id):
-    print len(fissions)
+    print 'fissions:', len(fissions)
+    print fissions[-1]
     list_of_block_ids = get_list_of_block_ids_from_fissions(fissions, grimm)
     print len(list_of_block_ids)
 
@@ -177,27 +180,57 @@ def parse_chromosomes(mgr_macro_file) :
         print 'g', len(g)
     return genomes
 
-#genome_id in 0 based
-def filter_segments_comprising_separate_scaffolds(segments, mgr_macro, genome_id):
+def filter_segments_comprising_separate_scaffolds(segments, mgr_macro):
     filtered = []
     cnt = 0
     for block in segments:
         exclude = False
         abs_block = map(abs, block)
-        for chromosome in mgr_macro[genome_id-1]:
-            abs_chromosome = map(abs, chromosome)
-            if set(abs_block) == set(abs_chromosome) :
-                #print 'block', block, '\n is filtered out from results of fissions because it corresponds to the separate scaffold'
-                cnt += 1
-                exclude = True
-                break
+        for genome in mgr_macro:
+            for chromosome in genome:
+                abs_chromosome = map(abs, chromosome)
+                if set(abs_block) == set(abs_chromosome) :
+                    #print 'block', block, '\n is filtered out from results of fissions because it corresponds to the separate scaffold'
+                    cnt += 1
+                    exclude = True
+                    break
         if not exclude:
             filtered.append(block)
     print cnt, 'blocks comprising separate scaffolds filtered'
     return filtered
 
-def process_fusions(grimm, fusions, all_blocks, mgr_macro, genome_id):
-    pass
+
+def get_list_of_block_ids_from_fusions(fusions, grimm):
+    result = []
+    for f in fusions:
+        step = f[0]
+        begin_id = f[1]
+        end_id = f[2]
+        #appended = False
+        for line in grimm[step] :
+            line = line[:-1]
+            data = map(int, line.split())
+            if begin_id in data: 
+                result.append(data[data.index(begin_id):])
+            elif -begin_id in data:
+                #appended = True
+                result.append(data[data.index(-begin_id):])
+            elif end_id in data: 
+                result.append(data[data.index(end_id):])
+            elif -end_id in data:
+                result.append(data[data.index(-end_id):])
+        #if not appended:
+        #    print step, begin_id
+    return result
+
+
+def process_fusions(grimm, fusions, all_segments, mgr_macro):
+    list_of_block_ids = get_list_of_block_ids_from_fusions(fusions, grimm)
+    print len(list_of_block_ids)
+    filtered_block_ids = filter_segments_comprising_separate_scaffolds(list_of_block_ids, mgr_macro)
+    blocks = get_blocks_from_list_of_block_ids(filtered_block_ids, all_segments) 
+    print len(blocks)
+    return blocks 
 
 if __name__ == '__main__':
     if __name__ == '__main__' :
@@ -217,7 +250,12 @@ if __name__ == '__main__':
     #blocks_to_bed.write_beds_with_rgb(r, reversed_segments, 'reversals.bed')
 
     mgr_macro = parse_chromosomes(sys.argv[4])
-    fission_segments = process_fissions(grimm, fi, synteny_blocks, mgr_macro, genome_id)
-    blocks_to_bed.write_beds_with_rgb(fi, fission_segments, 'fissions.bed')
+    #fission_segments = process_fissions(grimm, fi, synteny_blocks, mgr_macro)
+    #blocks_to_bed.write_beds_with_rgb(fi, fission_segments, 'fissions.bed')
     #length_distr = count_length_distribution(fission_segments)
     #print 'distribution of lengths for fissions:', length_distr 
+
+    fusion_segments = process_fusions(grimm, fu, synteny_blocks, mgr_macro)
+    print 'fusion segments',len(fusion_segments)
+    blocks_to_bed.write_beds_with_rgb(fu, fusion_segments, 'fusions.bed')
+
