@@ -123,37 +123,59 @@ def process_reversals(grimm, reversals, all_blocks) :
     blocks = get_blocks_from_list_of_block_ids(list_of_block_ids, all_blocks)
     return blocks
 
+def check_border_for_fission(fission_id, grimm, step, data) :
+    for line_prev in grimm[step-1] :
+        line_prev = line_prev[:-1]
+        data_prev = map(int, line_prev.split())
+        data_prev = map(abs, data_prev)             
+        if fission_id in data_prev :
+            if len(data) == 1:
+                if data_prev.index(fission_id) == 0:
+                    return data_prev[0:2]
+                else:
+                    return data_prev[-2:]
+            if len(data_prev) > data_prev.index(fission_id) + 1 and (data_prev[data_prev.index(fission_id) + 1] in data): 
+                return [data_prev[data_prev.index(fission_id)-1], fission_id]
+            elif data_prev.index(fission_id) - 1 > -1 and (data_prev[data_prev.index(fission_id) - 1] in data):
+                return [fission_id, data_prev[data_prev.index(fission_id)+1]]
+            else :
+                print 'data_prev', data_prev
+                print 'data', data
+                print 'fission_id', fission_id
+    return None
+
 def get_list_of_block_ids_from_fissions(fissions, grimm):
     result = []
     for f in fissions:
         step = f[0]
-        begin_id = f[1]
-        end_id = f[2]
+        begin_id = abs(f[1])
+        end_id = abs(f[2])
         #appended = False
         for line in grimm[step] :
             line = line[:-1]
             data = map(int, line.split())
-            if begin_id in data or -begin_id in data:
+            data = map(abs, data)             
+            if begin_id in data:
                 #appended = True
-                result.append(data)
-            elif end_id in data or -end_id in data:
-                result.append(data)
+                result.append(check_border_for_fission(begin_id, grimm, step, data))
+            elif end_id in data:
+                result.append(check_border_for_fission(end_id, grimm, step, data))
         #if not appended:
         #    print step, begin_id
     return result
 
-def process_fissions(grimm, fissions, all_segments, mgr_macro, genome_id):
+def process_fissions(grimm, fissions, all_segments, mgr_macro):
     print 'fissions:', len(fissions)
-    print fissions[-1]
-    list_of_block_ids = get_list_of_block_ids_from_fissions(fissions, grimm)
+    filtered_block_ids = list_of_block_ids = get_list_of_block_ids_from_fissions(fissions, grimm)
     print len(list_of_block_ids)
 
     #note that this makes sense only in case the genome assembly is fragmented
     #this should not be done in case the assembly if chromosome-level
-    filtered_block_ids = filter_segments_comprising_separate_scaffolds(list_of_block_ids, mgr_macro, genome_id)
+    #list of block ids must contain list of scaffoldseach represented as the list of block ids
+    #filtered_block_ids = filter_segments_comprising_separate_scaffolds(list_of_block_ids, mgr_macro, genome_id)
     print len(filtered_block_ids)
     blocks = get_blocks_from_list_of_block_ids(filtered_block_ids, all_segments)
-    print '\n'
+    #print '\n'
     print len(blocks)
     return blocks
 
@@ -200,36 +222,100 @@ def filter_segments_comprising_separate_scaffolds(segments, mgr_macro):
     return filtered
 
 
+def check_border_for_fusion(fusion_id, grimm, step, data) :
+    for line_prev in grimm[step-1] :
+        line_prev = line_prev[:-1]
+        data_prev = map(int, line_prev.split())
+        data_prev = map(abs, data_prev)             
+        if fusion_id in data_prev :
+            if len(data_prev) == 1:
+                if data.index(fusion_id) == 0:
+                    return data_prev[0:2]
+                else:
+                    return data_prev[-2:]
+            if data_prev.index(fusion_id) == len(data_prev) - 1:
+                return [fusion_id, data[data.index(fusion_id)+1]]
+            elif data_prev.index(fusion_id) == 0:
+                return [data[data.index(fusion_id)-1], fusion_id]
+    return None
+
 def get_list_of_block_ids_from_fusions(fusions, grimm):
     result = []
     for f in fusions:
         step = f[0]
-        begin_id = f[1]
-        end_id = f[2]
-        #appended = False
+        begin_id = abs(f[1])
+        end_id = abs(f[2])
         for line in grimm[step] :
             line = line[:-1]
             data = map(int, line.split())
+            data = map(abs, data)
+            border = []
             if begin_id in data: 
-                result.append(data[data.index(begin_id):])
-            elif -begin_id in data:
-                #appended = True
-                result.append(data[data.index(-begin_id):])
-            elif end_id in data: 
-                result.append(data[data.index(end_id):])
-            elif -end_id in data:
-                result.append(data[data.index(-end_id):])
-        #if not appended:
-        #    print step, begin_id
+                result.append(check_border_for_fusion(begin_id, grimm, step, data)) 
+            if end_id in data: 
+                result.append(check_border_for_fusion(end_id, grimm, step, data))
     return result
 
 
 def process_fusions(grimm, fusions, all_segments, mgr_macro):
-    list_of_block_ids = get_list_of_block_ids_from_fusions(fusions, grimm)
+    filtered_block_ids = list_of_block_ids = get_list_of_block_ids_from_fusions(fusions, grimm)
     print len(list_of_block_ids)
-    filtered_block_ids = filter_segments_comprising_separate_scaffolds(list_of_block_ids, mgr_macro)
+    #this was done in case we have the list of block ids that correspond to the whole segments
+    #now it's not 
+    #filtered_block_ids = filter_segments_comprising_separate_scaffolds(list_of_block_ids, mgr_macro)
     blocks = get_blocks_from_list_of_block_ids(filtered_block_ids, all_segments) 
     print len(blocks)
+    return blocks 
+
+def get_list_of_block_ids_from_translocations(translocations, grimm):
+    result = []
+    for f in translocations:
+        step = f[0]
+        begin_id = abs(f[1])
+        end_id = abs(f[2])
+        current_result = []
+        for line in grimm[step] :
+            begin_index = end_index = None
+            line = line[:-1]
+            data = map(int, line.split())
+            data = map(abs, data)
+            if begin_id in data or end_id in data:
+                if begin_id in data:
+                    current_result.append(begin_id)
+                if end_id in data:
+                    current_result.append(end_id)
+                for line_prev in grimm[step-1]:
+                    line_prev = line_prev[:-1]
+                    data_prev = map(int, line_prev.split())
+                    data_prev = map(abs, data_prev)
+                    if begin_id in data_prev:
+                        begin_index = data_prev.index(begin_id)
+                        if begin_index+1 < len(data_prev) and data_prev[begin_index+1] in data:
+                            if begin_index-1 > -1:
+                                current_result.append(data_prev[begin_index-1])
+                        elif begin_index-1 > -1 and data_prev[begin_index-1] in data:
+                            if begin_index+1 < len(data_prev):
+                                current_result.append(data_prev[begin_index+1])
+                    if end_id in data_prev:
+                        end_index = data_prev.index(end_id)
+                        if end_index+1 < len(data_prev) and data_prev[end_index+1] in data:
+                            if end_index-1 > -1:
+                                current_result.append(data_prev[end_index-1])
+                        elif end_index-1 > -1 and data_prev[end_index-1] in data:
+                            if end_index+1 < len(data_prev):
+                                current_result.append(data_prev[end_index+1])
+        result.append(current_result)
+    return result
+                
+
+
+
+def process_translocations(grimm, translocations, all_segments):
+    print 'translocations', len(translocations)
+    list_of_block_ids = get_list_of_block_ids_from_translocations(translocations, grimm)
+    print 'list of blocks ids', len(list_of_block_ids)
+    blocks = get_blocks_from_list_of_block_ids(list_of_block_ids, all_segments) 
+    print 'blocks', len(blocks)
     return blocks 
 
 if __name__ == '__main__':
@@ -255,7 +341,9 @@ if __name__ == '__main__':
     #length_distr = count_length_distribution(fission_segments)
     #print 'distribution of lengths for fissions:', length_distr 
 
-    fusion_segments = process_fusions(grimm, fu, synteny_blocks, mgr_macro)
-    print 'fusion segments',len(fusion_segments)
-    blocks_to_bed.write_beds_with_rgb(fu, fusion_segments, 'fusions.bed')
-
+#    fusion_segments = process_fusions(grimm, fu, synteny_blocks, mgr_macro)
+#    print 'fusion segments',len(fusion_segments)
+#    blocks_to_bed.write_beds_with_rgb(fu, fusion_segments, 'fusions.bed')
+   
+    translocation_segments = process_translocations(grimm, t, synteny_blocks)
+    blocks_to_bed.write_beds_with_rgb(t, translocation_segments, 'translocations.bed')
