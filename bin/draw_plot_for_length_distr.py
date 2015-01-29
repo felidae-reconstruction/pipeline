@@ -7,13 +7,15 @@ matplotlib.use('Agg')
 from matplotlib.backends.backend_pdf import PdfPages
 import matplotlib.pyplot as plt
 import threading
-from numpy import array
+import numpy
 import utils
 
 def draw_distr(x,y,name):
     pp=PdfPages(name)
     plt.xlabel('length')
     plt.ylabel('number of synteny blocks')
+    plt.tick_params(axis='both', which='major', labelsize=10)
+    plt.tick_params(axis='both', which='minor', labelsize=10)
     #bp = plt.boxplot(lengths, labels=coverages)
     bp = plt.plot(x,y)
     plt.savefig(pp, format='pdf')
@@ -56,6 +58,7 @@ if __name__ == '__main__' :
     file = sys.argv[1]
     output = sys.argv[2]
     values = extract_lengths(file)
+    print min(values), max(values), numpy.median(values)
     max_val = max(values)
     x_range, values = process_lengths(values, 10000)
     print len(values), len(x_range)

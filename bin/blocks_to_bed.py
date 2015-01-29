@@ -40,14 +40,38 @@ def write_beds(separate_blocks, output_bed_folder) :
         with open(name,'w') as f:
             for entry in separate_blocks[i]:
                 f.write(entry + '\n')
-
+'''
+def write_blocks(r, blocks, output_bed_file) :
+    k = len(blocks)
+    i = 0
+    blocks_as_entries = []
+    print 'blocks', len(blocks)
+    for l in blocks :
+        entries = []
+        step = 'Step' + str(r[i][0])
+        i += 1
+        for entry in l:
+            print entry
+            bed = [entry[0], entry[1], entry[1] + entry[2], step+'-'+str(entry[1]) + '-' + str(entry[2]), '0', entry[3]]
+            #entry.insert(-1, str(entry[1]) + '-' + str(entry[2]))
+            bed = map(str, bed)
+            #old_entry.insert(-1, ' 0 ')
+            entries.append(' '.join(bed))
+            blocks_as_entries.append(entries)
+    with open(output_bed_file,'w') as f:
+        for entry in blocks_as_entries:
+            f.write(entry + '\n')
+'''
+    
 #all blocks correspond to the one specie
 #but each list inside of blocks must be colored in a special random color
 def write_beds_with_rgb(r, blocks, output_bed_file) :
     k = len(blocks)
     i = 0
     blocks_as_entries = []
+    print 'blocks', len(blocks)
     for l in blocks :
+        top_scaffolds = []
         entries = []
         step = 'Step' + str(r[i][0])
         i += 1
@@ -57,7 +81,10 @@ def write_beds_with_rgb(r, blocks, output_bed_file) :
             bed = map(str, bed)
             #old_entry.insert(-1, ' 0 ')
             entries.append(' '.join(bed))
-        blocks_as_entries.append(entries)
+            top_scaffolds.append(entry[0]+'-'+str(entry[2]))
+            blocks_as_entries.append(entries)
+        top_scaffolds = sorted(top_scaffolds, key=lambda x: int(x.split('-')[1]), reverse=True)
+        print top_scaffolds[:10]
     with open(output_bed_file,'w') as f:
         for i in range(k):
             r = random.randint(0,255)

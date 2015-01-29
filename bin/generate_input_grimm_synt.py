@@ -3,14 +3,16 @@ import sys
 import os
 import glob
 import utils
+import itertools
 
 class Hit :
-    def __init__(self, specie, chr, start, len, sign):
+    def __init__(self, specie, chr, start, len, sign, sequence=''):
         self.specie = specie
         self.chr = chr
         self.start = start
         self.len = len
         self.sign = sign
+        self.sequence = sequence
 
     def to_string(self) :
         return self.chr+' '+str(self.start)+' '+str(self.len)+' '+self.sign
@@ -32,7 +34,22 @@ class Block:
             if (h.specie in species):
                 s.append(h.to_string())
         return ' '.join(s)
-        
+
+    def to_strings_with_repeats(self, unique_species, species) :
+        classes = []
+        for e in unique_species:
+            if e in species:
+                classes.append(filter(lambda x: x.specie == e, self.hits))
+        classes = list(itertools.product(*classes))
+        result = []
+        for hits in classes:
+            s = []
+            for h in hits:
+                s.append(h.to_string())
+            s = ' '.join(s)
+            result.append(s)
+        return result
+            
 
 def parse_maf(maf_file, sizes) :
     with open(maf_file) as maf:
@@ -54,9 +71,10 @@ def parse_maf(maf_file, sizes) :
                start = int(data[2])
                length = int(data[3])
                strand = data[4]
+               sequence = data[5].strip()
                if strand == '-':
                     start = sizes[specie][chrom] - start - length
-               hit = Hit(specie, chrom, start, length, strand)
+               hit = Hit(specie, chrom, start, length, strand, sequence)
                hits.append(hit)
                unique_species.add(specie)
         if len(hits) :
@@ -85,6 +103,18 @@ def parse_sizes(file) :
             sizes[data[0]] = int(data[1])
     return sizes
 
+def output_with_repeats(blocks, unique_species, species_to_output, output_file) :
+    with open(output_file, 'w') as f:
+        id = 0
+        for block in blocks:
+            hits = [h for h in block.hits]
+            show = False
+            if set(species_to_output).issubset(set(block.get_species())) :
+                strings = block.to_strings_with_repeats(unique_species,species_to_output)
+                for s in strings:
+                    id += 1
+                    f.write(str(id) +' '+ s+'\n')
+    
 def output_without_repeats(blocks, unique_species, species_to_output, output_file) :
     with open(output_file, 'w') as f:
         for block in blocks:
@@ -120,6 +150,7 @@ if __name__ == '__main__':
         exit()
     print utils.get_time()
     print 'output in grimm_synt format non-repetitive sequences...'
-    output_without_repeats(blocks, unique_species, species, sys.argv[3])
+    #output_without_repeats(blocks, unique_species, species, sys.argv[3])
+    output_with_repeats(blocks, unique_species, species, sys.argv[3])
     print utils.get_time()
     print 'done.'

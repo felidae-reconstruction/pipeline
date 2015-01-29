@@ -5,7 +5,6 @@ import os
 import subprocess
 import sys
 import cactus_runner
-
 from utils import *
 
 parser = SafeConfigParser()

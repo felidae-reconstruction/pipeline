@@ -122,7 +122,9 @@ def count_length_distribution(blocks) :
     return ls
     
 def process_reversals(grimm, reversals, all_blocks, mgr_macro) :
+    print 'reversals', len(reversals)
     list_of_block_ids = get_list_of_block_ids_from_reversals(reversals, grimm, mgr_macro)
+    print 'after filtering', len(list_of_block_ids)
     blocks = get_blocks_from_list_of_block_ids(list_of_block_ids, all_blocks)
     return blocks
 
@@ -149,7 +151,7 @@ def check_border_for_fission(fission_id, grimm, step, data) :
 
 # result is the list of points describing the fission event
 # each point is described as two blocks between the fission occurred
-# fragments is the list of frgamnts the fell of
+# fragments is the list of frgaments that fell of
 def get_list_of_block_ids_from_fissions(fissions, grimm, mgr_macro):
     points = []
     fragments = []
@@ -181,10 +183,9 @@ def get_list_of_block_ids_from_fissions(fissions, grimm, mgr_macro):
 def process_fissions(grimm, fissions, all_segments, mgr_macro):
     print 'fissions:', len(fissions)
     points, segments = get_list_of_block_ids_from_fissions(fissions, grimm, mgr_macro)
-    print 'points', len(points)   
+    print 'fissions after filtering', len(points)   
     segments_as_blocks = get_blocks_from_list_of_block_ids(segments, all_segments)
     points_as_blocks = get_blocks_from_list_of_block_ids(points, all_segments)
-    print 'points as blocks', len(points_as_blocks)
     return points_as_blocks, segments_as_blocks
 
 # chromosomes of each specie consist of syntenic blocks 
@@ -221,7 +222,8 @@ def filter_full_scaffolds(segments, mgr_macro):
         for genome in mgr_macro:
             for chromosome in genome:
                 abs_chromosome = map(abs, chromosome)
-                if set(abs_block) == set(abs_chromosome) :
+                intersect = set(abs_block) & set(abs_chromosome) 
+                if len(intersect) == len(abs_block):
                     #print 'block', block, '\n is filtered out from results of fissions because it corresponds to the separate scaffold'
                     cnt += 1
                     exclude = True
@@ -286,7 +288,7 @@ def get_list_of_block_ids_from_fusions(fusions, grimm, mgr_macro):
 def process_fusions(grimm, fusions, all_segments, mgr_macro):
     print 'fusions', len(fusions)
     points, segments = get_list_of_block_ids_from_fusions(fusions, grimm, mgr_macro)
-    print 'points', len(points)
+    print 'fusions after filtering', len(points)
     #this was done in case we have the list of block ids that correspond to the whole segments
     #now it's not 
     #filtered_block_ids = filter_segments_comprising_separate_scaffolds(list_of_block_ids, mgr_macro)
@@ -294,7 +296,6 @@ def process_fusions(grimm, fusions, all_segments, mgr_macro):
     parts = sum(segments,[])
     segments_as_blocks= get_blocks_from_list_of_block_ids(parts, all_segments)
     points_as_blocks = get_blocks_from_list_of_block_ids(points, all_segments) 
-    print 'points as blocks', len(points_as_blocks)
     return points_as_blocks, segments_as_blocks
 
 # result is list of translocation points. each point is represented as 4 block ids
@@ -342,9 +343,8 @@ def process_translocations(grimm, translocations, all_segments, mgr_macro):
     points, fragments = get_list_of_block_ids_from_translocations(translocations, grimm, mgr_macro)
     parts = sum(fragments,[])
     fragments_as_blocks = get_blocks_from_list_of_block_ids(parts, all_segments)
-    print 'list of blocks', len(points)
+    print 'translocations after filtering', len(points)
     points_as_blocks = get_blocks_from_list_of_block_ids(points, all_segments) 
-    print 'blocks', len(points_as_blocks)
     return points_as_blocks, fragments_as_blocks 
 
 if __name__ == '__main__':
@@ -361,21 +361,22 @@ if __name__ == '__main__':
     synteny_blocks = parse_synteny_blocks(sys.argv[3], genome_id)
     mgr_macro = parse_chromosomes(sys.argv[4])
     reversed_segments = process_reversals(grimm, r, synteny_blocks, mgr_macro)
-    if len(reversed_segments):
-        length_distr = count_length_distribution(reversed_segments)
-        print 'distribution of lengths for reversals:', len(length_distr), min(length_distr), max(length_distr), numpy.median(length_distr)  
-    #blocks_to_bed.write_beds_with_rgb(r, reversed_segments, 'reversals.bed')
+    print reversed_segments
+  #  if len(reversed_segments):
+  #      length_distr = count_length_distribution(reversed_segments)
+  #      print 'distribution of lengths for reversals:', len(length_distr), min(length_distr), max(length_distr), numpy.median(length_distr)  
+    blocks_to_bed.write_beds_with_rgb(r, reversed_segments, 'reversals.bed')
 
-    fission_points, fission_segments = process_fissions(grimm, fi, synteny_blocks, mgr_macro)
+ #    fission_points, fission_segments = process_fissions(grimm, fi, synteny_blocks, mgr_macro)
     #blocks_to_bed.write_beds_with_rgb(fi, fission_points, 'fissions.bed')
-    if len(fission_segments):
-        length_distr = count_length_distribution(fission_segments)
-        print 'distribution of lengths for fissions:', len(length_distr), min(length_distr), max(length_distr), numpy.median(length_distr) 
+ #   if len(fission_segments):
+ #       length_distr = count_length_distribution(fission_segments)
+ #       print 'distribution of lengths for fissions:', len(length_distr), min(length_distr), max(length_distr), numpy.median(length_distr) 
 
-    fusion_points, fusion_segments = process_fusions(grimm, fu, synteny_blocks, mgr_macro)
-    if len(fusion_segments):
-        length_distr = count_length_distribution(fusion_segments)
-        print 'distribution of lengths for the arms of fusions:', len(length_distr), min(length_distr), max(length_distr), numpy.median(length_distr)
+  #  fusion_points, fusion_segments = process_fusions(grimm, fu, synteny_blocks, mgr_macro)
+  #  if len(fusion_segments):
+  #      length_distr = count_length_distribution(fusion_segments)
+  #      print 'distribution of lengths for the arms of fusions:', len(length_distr), min(length_distr), max(length_distr), numpy.median(length_distr)
 ##    coupled_arms = []
 ##    for i in range(0,len(fusion_segments),2):
 ##        merge = fusion_segments[i] + fusion_segments[i+1]
@@ -386,7 +387,7 @@ if __name__ == '__main__':
 ##    blocks_to_bed.write_beds_with_rgb(fu, fusion_points, 'fusions.bed')
    
     translocation_points, translocation_segments = process_translocations(grimm, t, synteny_blocks, mgr_macro)
-    if len(translocation_segments):
-        length_distr = count_length_distribution(translocation_segments)
-        print 'distribution of lengths for translocations', len(length_distr), min(length_distr), max(length_distr), numpy.median(length_distr) 
-  #  blocks_to_bed.write_beds_with_rgb(t, translocation_points, 'translocations.bed')
+  #  if len(translocation_segments):
+  #      length_distr = count_length_distribution(translocation_segments)
+  #      print 'distribution of lengths for translocations', len(length_distr), min(length_distr), max(length_distr), numpy.median(length_distr) 
+    #blocks_to_bed.write_beds_with_rgb(t, translocation_points, 'translocations.bed')
