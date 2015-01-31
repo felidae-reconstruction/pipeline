@@ -8,7 +8,7 @@ import tempfile
 import utils
 
 def get_sequences(species, HAL):
-    seqsTMP=tempfile.NamedTemporaryFile()
+    seqsTMP=tempfile.NamedTemporaryFile(mode='w+t')
     command = 'halStats --sequences ' + species + ' ' + HAL + ' > ' + seqsTMP.name
     subprocess.call(command, shell=True)
     seqs = []
@@ -17,6 +17,20 @@ def get_sequences(species, HAL):
         seqs += data
     seqsTMP.close()
     return seqs
+
+def get_size(scaffold, species, hal) :
+    sizeTMP=tempfile.NamedTemporaryFile()
+    scaffoldsTMP=tempfile.NamedTemporaryFile(mode='w+t')
+    scaffoldsTMP.write(scaffold+'\n')
+    scaffoldsTMP.seek(0)
+    command = 'halStats --chromSizes ' + species + ' ' + hal + ' | fgrep -w -f ' + scaffoldsTMP.name + ' | cut -f2 > ' + sizeTMP.name
+    subprocess.call(command, shell=True)
+    scaffoldsTMP.close()
+    sizes = {}
+    size = int(sizeTMP.readline())
+    sizeTMP.close()
+    return size
+
 
 def get_sizes(scaffolds, species, HAL):
     sizeTMP=tempfile.NamedTemporaryFile()
@@ -35,7 +49,7 @@ def get_sizes(scaffolds, species, HAL):
     return sizes
 
 def run_joblist(joblist):
-    subprocess.call('para create '+joblist+' -ram=8g', shell=True)
+    subprocess.call('para create '+joblist+' -ram=16g', shell=True)
     subprocess.call('para try ; para check ;', shell=True)
     subprocess.call('para push; para check;', shell=True)
 
