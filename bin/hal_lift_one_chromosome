@@ -1,0 +1,52 @@
+#!/hive/groups/recon/local/bin/python
+
+import os
+import subprocess
+import tempfile
+from cluster_utils import *
+
+HAL_PREFIX='/hive/users/ksenia/apps/hal/bin/'
+
+def create_bed(hal, query, chromosome):
+    bed_tmp=tempfile.NamedTemporaryFile(mode='w+t',delete=False)
+    size = get_size(chromosome, query, hal)
+    bed_tmp.write(chromosome + ' 0 ' + str(size)+'\n')
+    bed_tmp.flush()
+    bed_tmp.seek(0)
+    return bed_tmp
+
+def lift_chromosome(hal, query, query_bed, target, psl) :
+    target_psl_tmp = tempfile.NamedTemporaryFile(mode='w+t',delete=False)
+    files = ' '.join([hal, query, query_bed, target, target_psl_tmp.name])
+    command = os.path.join(HAL_PREFIX, 'halLiftover')+ ' --inMemory --outPSL ' +  files
+    subprocess.call(command, shell=True)
+    target_psl_tmp.flush()
+    target_psl_tmp.seek(0)
+    if not os.stat(target_psl_tmp.name).st_size:
+        raise Exception('target psl file is empty!')
+    command = 'pslPosTarget ' + target_psl_tmp.name + ' ' + psl
+    subprocess.call(command, shell=True)
+    target_psl_tmp.close()
+    
+
+def run(hal, query, target, chromosome, psl) :
+    query_bed = create_bed(hal, query, chromosome)
+    if not os.stat(query_bed.name).st_size:
+        raise Exception('query bed file is empty!') 
+    lift_chromosome(hal, query, query_bed.name, target, psl)
+    if not os.stat(psl).st_size:
+        raise Exception('psl for chromosome ', chromosome, ' is empty!')
+    query_bed.close()
+
+
+if __name__ == '__main__':
+    if len(sys.argv) < 6 :
+        print 'USAGE: hal query target query_chromosome output_psl'
+        raise Exception('Too few arguments!')
+    hal = sys.argv[1]
+    query = sys.argv[2]
+    target = sys.argv[3]
+    chromosome = sys.argv[4]
+    psl = sys.argv[5]
+    run(hal, query, target, chromosome, psl)
+

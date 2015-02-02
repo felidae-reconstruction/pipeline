@@ -1,0 +1,42 @@
+#!/hive/groups/recon/local/bin/python
+
+import os
+import subprocess
+import sys
+import tempfile
+import utils
+from cluster_utils import *
+
+parser = SafeConfigParser()
+parser.read('../etc/chaining.config')
+
+DATA_ROOT = parser.get('environment','DATA_ROOT')
+VERSION = parser.get('environment','VERSION')
+NAME = parser.get('environment','NAME')
+WORKING_DIR = os.path.join(DATA_ROOT, 'comparative', NAME, VERSION)
+
+def create_joblist(hal, query_sequences, target) :
+    jobList = os.path.join(WORKING_DIR,'jobList')
+    with open(jobList,'w') as f:
+        for chromosome in query_sequences :
+            command = ' '.join(['./hal_lift_one_chromosome', hal, query, target, chromosome, os.path.join(WORKING_DIR,chromosome+'.psl')])
+            f.write(command+'\n')
+            break
+    return jobList
+
+def run(hal, query, target) :
+    query_sequences = get_sequences(query,hal)
+    if not len(query_sequences) :
+        raise Exception('empty query sequences')
+    jobList = create_joblist(hal, query_sequences, target)
+    run_joblist(jobList)
+
+if __name__ == '__main__':
+    if len(sys.argv) < 5 :
+        print 'USAGE: hal query target output_psl'
+        raise Exception('Too few arguments!')
+    hal = sys.argv[1]
+    query = sys.argv[2]
+    target = sys.argv[3]
+    psl = sys.argv[4]
+    run(hal, query, target)
