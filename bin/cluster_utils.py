@@ -16,6 +16,7 @@ def get_sequences(species, HAL):
     seqs = []
     for line in seqsTMP:
         data = line.strip().split(',')
+        data = filter(lambda x: 'scaffold' in x, data)
         seqs += data
     seqsTMP.close()
     return seqs

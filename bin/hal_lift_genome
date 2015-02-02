@@ -21,7 +21,7 @@ def create_joblist(hal, query_sequences, target) :
         for chromosome in query_sequences :
             command = ' '.join(['./hal_lift_one_chromosome', hal, query, target, chromosome, os.path.join(WORKING_DIR,chromosome+'.psl')])
             f.write(command+'\n')
-            break
+            #break
     return jobList
 
 def run(hal, query, target) :
