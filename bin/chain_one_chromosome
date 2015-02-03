@@ -1,0 +1,47 @@
+#!/hive/groups/recon/local/bin/python
+
+from ConfigParser import SafeConfigParser
+import argparse
+import os
+import subprocess
+import tempfile
+import utils
+
+config_parser = SafeConfigParser()
+config_parser.read('../etc/chaining.config')
+
+DATA_ROOT = config_parser.get('environment','DATA_ROOT')
+VERSION = config_parser.get('environment','VERSION')
+NAME = config_parser.get('environment','NAME')
+WORKING_DIR = os.path.join(DATA_ROOT, 'comparative', NAME, VERSION)
+
+KENT_TOOLS_PREFIX = '/cluster/bin/x86_64/'
+
+def get_sizes(genome):
+    tmp=tempfile.NamedTemporaryFile(mode='w+t')
+    command = ' '.join([os.path.join(KENT_TOOLS_PREFIX,'twoBitInfo'), genome, tmp.name])
+    subprocess.check_call(command, shell=True)
+    return tmp
+
+def run(psl, query_genome, target_genome):
+    sizes_query = get_sizes(query_genome)
+    sizes_target = get_sizes(target_genome)
+    axtChain = ' '.join([os.path.join(KENT_TOOLS_PREFIX,'axtChain'), '-psl -verbose=0 -minScore=5000 -linearGap=medium', 
+                    psl, target_genome, query_genome, 'stdout']) 
+    chainAntiRepeat = ' '.join([os.path.join(KENT_TOOLS_PREFIX,'chainAntiRepeat'), target_genome, query_genome, 'stdin', 'stdout'])
+    chainPreNet = ' '.join([os.path.join(KENT_TOOLS_PREFIX,'chainPreNet'), 'stdin', sizes_target.name, sizes_query.name, 'stdout'])
+    chainNet = ' '.join([os.path.join(KENT_TOOLS_PREFIX,'chainNet'), 'stdin -minSpace=1', sizes_target.name, sizes_query.name, 'stdout /dev/null'])
+    netSyntenic = ' '.join([os.path.join(KENT_TOOLS_PREFIX,'netSyntenic'), 'stdin stdout'])
+    netFilter = ' '.join([os.path.join(KENT_TOOLS_PREFIX,'netFilter'), '-minGap=10 stdin >', os.path.join(WORKING_DIR, utils.get_name(psl)+'.net')])
+    command = ' | '.join([axtChain, chainAntiRepeat, chainPreNet, chainNet, netSyntenic, netFilter])
+    subprocess.check_call(command, shell=True) 
+    sizes_query.close()
+    sizes_target.close()
+
+if __name__ == '__main__' :
+    parser = argparse.ArgumentParser()
+    parser.add_argument('psl',help='query mapped on target psl')
+    parser.add_argument('query_genome',help='query 2bit file')
+    parser.add_argument('target_genome',help='target 2bit file')
+    args = parser.parse_args()
+    run(args.psl, args.query_genome, args.target_genome)
