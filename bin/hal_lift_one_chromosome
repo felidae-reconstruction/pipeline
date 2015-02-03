@@ -3,6 +3,7 @@
 import os
 import subprocess
 import tempfile
+import argparse
 from cluster_utils import *
 
 HAL_PREFIX='/hive/users/ksenia/apps/hal/bin/'
@@ -41,13 +42,12 @@ def run(hal, query, target, chromosome, psl) :
 
 
 if __name__ == '__main__':
-    if len(sys.argv) < 6 :
-        print 'USAGE: hal query target query_chromosome output_psl'
-        raise Exception('Too few arguments!')
-    hal = sys.argv[1]
-    query = sys.argv[2]
-    target = sys.argv[3]
-    chromosome = sys.argv[4]
-    psl = sys.argv[5]
-    run(hal, query, target, chromosome, psl)
+    parser = argparse.ArgumentParser(description='run halLiftover to map one specific chromosome of query to target')
+    parser.add_argument('hal')
+    parser.add_argument('query',help='query species name')
+    parser.add_argument('target', help='target species name')
+    parser.add_argument('chromosome',help='query chromosome name')
+    parser.add_argument('psl',help='output psl')
+    args = parser.parse_args()
+    run(args.hal, args.query, args.target, args.chromosome, args.psl)
 
