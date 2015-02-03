@@ -1,0 +1,45 @@
+#!/hive/groups/recon/local/bin/python
+
+from ConfigParser import SafeConfigParser
+import os
+import utils
+import argparse
+import cluster_utils
+import utils
+
+parser = SafeConfigParser()
+parser.read('../etc/chaining.config')
+
+DATA_ROOT = parser.get('environment','DATA_ROOT')
+VERSION = parser.get('environment','VERSION')
+NAME = parser.get('environment','NAME')
+WORKING_DIR = os.path.join(DATA_ROOT, 'comparative', NAME, VERSION)
+
+BIN_DIR = '/hive/groups/recon/projs/felidae/git_pipeline/pipeline/bin'
+
+def create_joblist(hal, query_sequences, query, target, query_genome, target_genome) :
+    jobList = os.path.join(WORKING_DIR,'jobList')
+    with open(jobList,'w') as f:
+        for chromosome in query_sequences :
+            command = ' '.join(['hal_to_net_one_chromosome',hal,query,target, query_genome, target_genome, chromosome])
+            f.write(command+'\n')
+    return jobList
+
+def run(hal, query, target, query_genome, target_genome) :
+    query_sequences = cluster_utils.get_sequences(query,hal)
+    if not len(query_sequences) :
+        raise Exception('empty query sequences')
+    jobList = create_joblist(hal, query_sequences, query, target, query_genome, target_genome)
+    cluster_utils.run_joblist(jobList)
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('hal')
+    parser.add_argument('query',help='species name')
+    parser.add_argument('target',help='species name')
+    parser.add_argument('query_genome',help='2bit file')
+    parser.add_argument('target_genome',help='2bit file')
+    #psl = sys.argv[4]
+    args = parser.parse_args()
+    utils.create_dir_if_not_exists(WORKING_DIR)
+    run(args.hal, args.query, args.target, args.query_genome, args.target_genome)

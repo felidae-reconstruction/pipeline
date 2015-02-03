@@ -34,7 +34,7 @@ def get_size(scaffold, species, hal) :
     sizeTMP.close()
     return size
 
-
+'''
 def get_sizes(scaffolds, species, HAL):
     sizeTMP=tempfile.NamedTemporaryFile()
     scaffoldsTMP=tempfile.NamedTemporaryFile(mode='w+t')
@@ -50,6 +50,7 @@ def get_sizes(scaffolds, species, HAL):
         sizes[data[0]] = data[1]
     sizeTMP.close()
     return sizes
+'''
 
 def run_joblist(joblist):
     subprocess.check_call('para create '+joblist+' -ram=16g', shell=True)

@@ -23,7 +23,7 @@ def get_sizes(genome):
     subprocess.check_call(command, shell=True)
     return tmp
 
-def run(psl, query_genome, target_genome):
+def run(psl, query_genome, target_genome, output):
     sizes_query = get_sizes(query_genome)
     sizes_target = get_sizes(target_genome)
     axtChain = ' '.join([os.path.join(KENT_TOOLS_PREFIX,'axtChain'), '-psl -verbose=0 -minScore=5000 -linearGap=medium', 
@@ -32,7 +32,7 @@ def run(psl, query_genome, target_genome):
     chainPreNet = ' '.join([os.path.join(KENT_TOOLS_PREFIX,'chainPreNet'), 'stdin', sizes_target.name, sizes_query.name, 'stdout'])
     chainNet = ' '.join([os.path.join(KENT_TOOLS_PREFIX,'chainNet'), 'stdin -minSpace=1', sizes_target.name, sizes_query.name, 'stdout /dev/null'])
     netSyntenic = ' '.join([os.path.join(KENT_TOOLS_PREFIX,'netSyntenic'), 'stdin stdout'])
-    netFilter = ' '.join([os.path.join(KENT_TOOLS_PREFIX,'netFilter'), '-minGap=10 stdin >', os.path.join(WORKING_DIR, utils.get_name(psl)+'.net')])
+    netFilter = ' '.join([os.path.join(KENT_TOOLS_PREFIX,'netFilter'), '-minGap=10 stdin >', os.path.join(WORKING_DIR, output)])
     command = ' | '.join([axtChain, chainAntiRepeat, chainPreNet, chainNet, netSyntenic, netFilter])
     subprocess.check_call(command, shell=True) 
     sizes_query.close()
@@ -43,5 +43,6 @@ if __name__ == '__main__' :
     parser.add_argument('psl',help='query mapped on target psl')
     parser.add_argument('query_genome',help='query 2bit file')
     parser.add_argument('target_genome',help='target 2bit file')
+    parser.add_argument('output',help='name of the output net file')
     args = parser.parse_args()
-    run(args.psl, args.query_genome, args.target_genome)
+    run(args.psl, args.query_genome, args.target_genome, args.output)
