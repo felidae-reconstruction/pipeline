@@ -1,9 +1,7 @@
 #!/hive/groups/recon/local/bin/python
 
 import os
-import subprocess
 import sys
-import tempfile
 import utils
 from cluster_utils import *
 
@@ -32,11 +30,11 @@ def run(hal, query, target) :
     run_joblist(jobList)
 
 if __name__ == '__main__':
-    if len(sys.argv) < 5 :
-        print 'USAGE: hal query target output_psl'
+    if len(sys.argv) < 4 :
+        print 'USAGE: hal query target'
         raise Exception('Too few arguments!')
     hal = sys.argv[1]
     query = sys.argv[2]
     target = sys.argv[3]
-    psl = sys.argv[4]
+    #psl = sys.argv[4]
     run(hal, query, target)

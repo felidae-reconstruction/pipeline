@@ -12,7 +12,7 @@ HAL_PREFIX='/hive/users/ksenia/apps/hal/bin/'
 def get_sequences(species, HAL):
     seqsTMP=tempfile.NamedTemporaryFile(mode='w+t')
     command = os.path.join(HAL_PREFIX,'halStats') +' --sequences ' + species + ' ' + HAL + ' > ' + seqsTMP.name
-    subprocess.call(command, shell=True)
+    subprocess.check_call(command, shell=True)
     seqs = []
     for line in seqsTMP:
         data = line.strip().split(',')
@@ -27,7 +27,7 @@ def get_size(scaffold, species, hal) :
     scaffoldsTMP.write(scaffold+'\n')
     scaffoldsTMP.seek(0)
     command = os.path.join(HAL_PREFIX,'halStats') +' --chromSizes ' + species + ' ' + hal + ' | fgrep -w -f ' + scaffoldsTMP.name + ' | cut -f2 > ' + sizeTMP.name
-    subprocess.call(command, shell=True)
+    subprocess.check_call(command, shell=True)
     scaffoldsTMP.close()
     sizes = {}
     size = int(sizeTMP.readline())
@@ -42,7 +42,7 @@ def get_sizes(scaffolds, species, HAL):
         scaffoldsTMP.write(s+'\n')
     scaffoldsTMP.seek(0)
     command = os.path.join(HAL_PREFIX,'halStats') +' --chromSizes ' + species + ' ' + HAL + ' | fgrep -w -f ' + scaffoldsTMP.name + ' > ' + sizeTMP.name
-    subprocess.call(command, shell=True)
+    subprocess.check_call(command, shell=True)
     scaffoldsTMP.close()
     sizes = {}
     for line in sizeTMP:
@@ -52,8 +52,8 @@ def get_sizes(scaffolds, species, HAL):
     return sizes
 
 def run_joblist(joblist):
-    subprocess.call('para create '+joblist+' -ram=16g', shell=True)
-    subprocess.call('para try ; para check;', shell=True)
-    subprocess.call('para push; para check;', shell=True)
+    subprocess.check_call('para create '+joblist+' -ram=16g', shell=True)
+    subprocess.check_call('para try ; para check;', shell=True)
+    subprocess.check_call('para push; para check;', shell=True)
 
 
