@@ -7,7 +7,7 @@ import argparse
 from cluster_utils import *
 
 HAL_PREFIX='/hive/users/ksenia/apps/hal/bin/'
-debug=False
+debug=True
 
 def create_bed(hal, query, chromosome):
     bed_tmp=tempfile.NamedTemporaryFile(mode='w+t',delete=(not debug))
@@ -19,15 +19,15 @@ def create_bed(hal, query, chromosome):
 
 def lift_chromosome(hal, query, query_bed, target, psl) :
     target_psl_tmp = tempfile.NamedTemporaryFile(mode='w+t',delete=(not debug))
-    files = ' '.join([hal, query, query_bed, target, target_psl_tmp.name])
-    command = os.path.join(HAL_PREFIX, 'halLiftover')+ ' --outPSL ' +  files
-    subprocess.check_call(command, shell=True)
+    files = [hal, query, query_bed, target, target_psl_tmp.name]
+    command = [os.path.join(HAL_PREFIX, 'halLiftover'), '--outPSL'] + files
+    subprocess.check_call(command)
     target_psl_tmp.flush()
     target_psl_tmp.seek(0)
-    if not os.stat(target_psl_tmp.name).st_size:
-        raise Exception('target psl file is empty!')
-    command = 'pslPosTarget ' + target_psl_tmp.name + ' ' + psl
-    subprocess.check_call(command, shell=True)
+    #if not os.stat(target_psl_tmp.name).st_size:
+    #    raise Exception('target psl file is empty!')
+    command = ['pslPosTarget', target_psl_tmp.name, psl]
+    subprocess.check_call(command)
     target_psl_tmp.close()
     
 
@@ -36,8 +36,8 @@ def run(hal, query, target, chromosome, psl) :
     if not os.stat(query_bed.name).st_size:
         raise Exception('query bed file is empty!') 
     lift_chromosome(hal, query, query_bed.name, target, psl)
-    if not os.stat(psl).st_size:
-        raise Exception('psl for chromosome ', chromosome, ' is empty!')
+    #if not os.stat(psl).st_size:
+    #    raise Exception('psl for chromosome ', chromosome, ' is empty!')
     query_bed.close()
 
 

@@ -21,10 +21,10 @@ def run(hal, query, target, query_genome, target_genome, chromosome):
     utils.create_dir_if_not_exists(os.path.join(WORKING_DIR,'net'))
 
     psl_tmp = tempfile.NamedTemporaryFile(mode='w+t')
-    hal_lift = ' '.join([os.path.join(BIN_DIR,'hal_lift_one_chromosome'), hal, query, target, chromosome, psl_tmp.name])
-    subprocess.check_call(hal_lift, shell=True)
-    net = ' '.join([os.path.join(BIN_DIR,'chain_one_chromosome'), psl_tmp.name, query_genome, target_genome, output_net])
-    subprocess.check_call(net, shell=True)
+    hal_lift = [os.path.join(BIN_DIR,'hal_lift_one_chromosome'), hal, query, target, chromosome, psl_tmp.name]
+    subprocess.check_call(hal_lift)
+    net = [os.path.join(BIN_DIR,'chain_one_chromosome'), psl_tmp.name, query_genome, target_genome, output_net]
+    subprocess.check_call(net)
     psl_tmp.close()
 
 

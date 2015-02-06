@@ -16,7 +16,7 @@ def get_sequences(species, HAL):
     seqs = []
     for line in seqsTMP:
         data = line.strip().split(',')
-        data = filter(lambda x: 'scaffold' in x, data)
+        data = filter(lambda x: 'scaffold' in x or 'chr' in x, data)
         seqs += data
     seqsTMP.close()
     return seqs
@@ -53,8 +53,9 @@ def get_sizes(scaffolds, species, HAL):
 '''
 
 def run_joblist(joblist):
-    subprocess.check_call('para create '+joblist+' -ram=16g', shell=True)
-    subprocess.check_call('para try ; para check;', shell=True)
-    subprocess.check_call('para push; para check;', shell=True)
+    subprocess.check_call(['para', 'make', joblist, '-ram=8g'])
+    subprocess.check_call(['para', 'push'])
+    subprocess.check_call(['para', 'check'])
+
 
 

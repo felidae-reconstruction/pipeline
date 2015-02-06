@@ -19,8 +19,8 @@ KENT_TOOLS_PREFIX = '/cluster/bin/x86_64/'
 
 def get_sizes(genome):
     tmp=tempfile.NamedTemporaryFile(mode='w+t')
-    command = ' '.join([os.path.join(KENT_TOOLS_PREFIX,'twoBitInfo'), genome, tmp.name])
-    subprocess.check_call(command, shell=True)
+    command = [os.path.join(KENT_TOOLS_PREFIX,'twoBitInfo'), genome, tmp.name]
+    subprocess.check_call(command)
     return tmp
 
 def run(psl, query_genome, target_genome, output):
