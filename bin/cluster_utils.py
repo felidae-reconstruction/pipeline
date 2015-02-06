@@ -34,23 +34,16 @@ def get_size(scaffold, species, hal) :
     sizeTMP.close()
     return size
 
-'''
-def get_sizes(scaffolds, species, HAL):
+def get_sizes(species, hal) :
+#not tested!
     sizeTMP=tempfile.NamedTemporaryFile()
-    scaffoldsTMP=tempfile.NamedTemporaryFile(mode='w+t')
-    for s in scaffolds:
-        scaffoldsTMP.write(s+'\n')
-    scaffoldsTMP.seek(0)
-    command = os.path.join(HAL_PREFIX,'halStats') +' --chromSizes ' + species + ' ' + HAL + ' | fgrep -w -f ' + scaffoldsTMP.name + ' > ' + sizeTMP.name
+    command = os.path.join(HAL_PREFIX,'halStats') +' --chromSizes ' + species + ' ' + hal + ' > '+ sizeTMP.name
     subprocess.check_call(command, shell=True)
-    scaffoldsTMP.close()
-    sizes = {}
-    for line in sizeTMP:
+    sizes = []
+    for line in sizeTMP.name :
         data = line.strip().split()
         sizes[data[0]] = data[1]
-    sizeTMP.close()
     return sizes
-'''
 
 def run_joblist(joblist):
     subprocess.check_call(['para', 'make', joblist, '-ram=8g'])

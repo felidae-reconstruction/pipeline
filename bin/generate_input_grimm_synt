@@ -4,6 +4,7 @@ import os
 import glob
 import utils
 import itertools
+import argparse
 
 class Hit :
     def __init__(self, specie, chr, start, len, sign, sequence=''):
@@ -129,28 +130,29 @@ def parse_species_file(species_file):
         for line in f:
             line = line.strip().split(' ')
             if len(line) != 2:
-                print 'species file format: genome_id genome_name'
-                return []
+                raise Exception('species file has invalid format')
             species.append(line[1].strip())
     return species
 
 if __name__ == '__main__':
-    if len(sys.argv) < 4:
-        print 'USAGE:', sys.argv[0], 'maf_file', 'dir_chrom_sizes', 'output_file', 'species_file'
-        exit()
-    sizes = parse_all_sizes(sys.argv[2])
+    parser = argparse.ArgumentParser()
+    parser.add_argument('maf')
+    parser.add_argument('sizes',help='directory with sizes files')
+    parser.add_argument('output_file')
+    parser.add_argument('species',help='species file format: genome_id genome_name')
+    args = parser.parse_args()
+    sizes = parse_all_sizes(args.sizes)
     print utils.get_time()
     print 'parsing maf...'
-    blocks, unique_species = parse_maf(sys.argv[1], sizes)
+    blocks, unique_species = parse_maf(args.maf, sizes)
     print utils.get_time()
     print 'reading species names...'
-    species = parse_species_file(sys.argv[4])
+    species = parse_species_file(args.species)
     if len(species) == 0:
-        print 'invalid species file!'
-        exit()
+        raise Exception('invalid species set')
     print utils.get_time()
-    print 'output in grimm_synt format non-repetitive sequences...'
+    print 'output in grimm_synt format...'
     #output_without_repeats(blocks, unique_species, species, sys.argv[3])
-    output_with_repeats(blocks, unique_species, species, sys.argv[3])
+    output_with_repeats(blocks, unique_species, species, args.output_file)
     print utils.get_time()
     print 'done.'

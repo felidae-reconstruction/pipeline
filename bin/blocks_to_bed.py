@@ -2,6 +2,7 @@
 import sys
 import os
 import random
+import argparse
 
 #for each specie get its own separate block
 def read_blocks(input_blocks) :
@@ -22,12 +23,8 @@ def read_blocks(input_blocks) :
                 start = int(data[i+1])
                 end = int(data[i+1]) + int(data[i+2])
                 name = str(start)+ '-' +str(end)
-                hit = data[i]+' '+str(start)+ ' ' +str(end)+ ' ' +name + ' 0 ' +strand
-                #print i/4, hit
+                hit = ' '.join([data[i], str(start), str(end), name, '0', strand])
                 separate_blocks[i/4].append(hit)
-                #print i/4, separate_blocks[i/4]
-    print separate_blocks[0][:10]
-    print separate_blocks[1][:10]
     return separate_blocks 
             
 
@@ -97,8 +94,9 @@ def write_beds_with_rgb(r, blocks, output_bed_file) :
     
 
 if __name__ == '__main__':
-    if len(sys.argv) < 3:
-        print sys.argv[0], 'input_blocks', 'output_bed_folder'
-        exit()
-    separate_blocks = read_blocks(sys.argv[1])
-    write_beds(separate_blocks, sys.argv[2])
+    parser = argparse.ArgumentParser()
+    parser.add_argument('blocks', help='synteny blocks in grimm synteny format')
+    parser.add_argument('output_dir', help='output directory for bed files')
+    args = parser.parse_args()
+    separate_blocks = read_blocks(args.blocks)
+    write_beds(separate_blocks, args.output_dir)
