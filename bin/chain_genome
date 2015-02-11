@@ -42,4 +42,11 @@ if __name__ == '__main__':
     #psl = sys.argv[4]
     args = parser.parse_args()
     utils.create_dir_if_not_exists(WORKING_DIR)
+    utils.create_dir_if_not_exists(os.path.join(os.path.join(WORKING_DIR,'chain')))
+    utils.create_dir_if_not_exists(os.path.join(os.path.join(WORKING_DIR,'net')))
     run(args.hal, args.query, args.target, args.query_genome, args.target_genome)
+
+
+
+
+
