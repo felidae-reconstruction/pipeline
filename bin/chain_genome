@@ -21,7 +21,7 @@ def create_joblist(hal, query_sequences, query, target, query_genome, target_gen
     jobList = os.path.join(WORKING_DIR,'jobList')
     with open(jobList,'w') as f:
         for chromosome in query_sequences :
-            command = ' '.join(['hal_to_net_one_chromosome',hal,query,target, query_genome, target_genome, chromosome])
+            command = ' '.join([os.path.join(BIN_DIR,'hal_to_net_one_chromosome'),hal,query,target, query_genome, target_genome, chromosome])
             f.write(command+'\n')
     return jobList
 
@@ -30,6 +30,7 @@ def run(hal, query, target, query_genome, target_genome) :
     if not len(query_sequences) :
         raise Exception('empty query sequences')
     jobList = create_joblist(hal, query_sequences, query, target, query_genome, target_genome)
+    print jobList
     cluster_utils.run_joblist(jobList)
 
 if __name__ == '__main__':
@@ -41,9 +42,10 @@ if __name__ == '__main__':
     parser.add_argument('target_genome',help='2bit file')
     #psl = sys.argv[4]
     args = parser.parse_args()
+    print WORKING_DIR
     utils.create_dir_if_not_exists(WORKING_DIR)
-    utils.create_dir_if_not_exists(os.path.join(os.path.join(WORKING_DIR,'chain')))
-    utils.create_dir_if_not_exists(os.path.join(os.path.join(WORKING_DIR,'net')))
+    utils.create_dir_if_not_exists(os.path.join(WORKING_DIR,'chain'))
+    utils.create_dir_if_not_exists(os.path.join(WORKING_DIR,'net'))
     run(args.hal, args.query, args.target, args.query_genome, args.target_genome)
 
 

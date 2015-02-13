@@ -35,12 +35,12 @@ def get_size(scaffold, species, hal) :
     return size
 
 def get_sizes(species, hal) :
-#not tested!
-    sizeTMP=tempfile.NamedTemporaryFile()
+    sizeTMP=tempfile.NamedTemporaryFile(mode='w+t')
     command = os.path.join(HAL_PREFIX,'halStats') +' --chromSizes ' + species + ' ' + hal + ' > '+ sizeTMP.name
     subprocess.check_call(command, shell=True)
-    sizes = []
-    for line in sizeTMP.name :
+    sizeTMP.seek(0)
+    sizes = {}
+    for line in sizeTMP :
         data = line.strip().split()
         sizes[data[0]] = data[1]
     return sizes

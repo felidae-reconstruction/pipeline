@@ -28,17 +28,22 @@ def run(psl, query_genome, target_genome, output):
     sizes_target = get_sizes(target_genome)
     chain_dir = os.path.join(WORKING_DIR,'chain')
     chain_file = os.path.join(chain_dir,utils.get_name(output)+'.chain')
-    axtChain = ' '.join([os.path.join(KENT_TOOLS_PREFIX,'axtChain'), '-psl -verbose=0 -minScore=5000 -linearGap=medium', 
-                    psl, target_genome, query_genome, chain_file]) 
+    axtChain = [os.path.join(KENT_TOOLS_PREFIX,'axtChain'), '-psl', '-verbose=0', '-minScore=5000', '-linearGap=medium', 
+                    psl, target_genome, query_genome, chain_file]
+    subprocess.check_call(axtChain)
     sorted_chain_file = os.path.join(chain_dir,utils.get_name(output)+'.sorted.chain')
-    axtSortedChain = ' '.join([os.path.join(KENT_TOOLS_PREFIX,'sortChain'), chain_file, sorted_chain_file]) 
+    axtSortedChain = [os.path.join(KENT_TOOLS_PREFIX,'chainSort'), chain_file, sorted_chain_file] 
+    subprocess.check_call(axtSortedChain)
+
     chainAntiRepeat = ' '.join([os.path.join(KENT_TOOLS_PREFIX,'chainAntiRepeat'), target_genome, query_genome, chain_file, 'stdout'])
     chainPreNet = ' '.join([os.path.join(KENT_TOOLS_PREFIX,'chainPreNet'), 'stdin', sizes_target.name, sizes_query.name, 'stdout'])
     chainNet = ' '.join([os.path.join(KENT_TOOLS_PREFIX,'chainNet'), 'stdin -minSpace=1', sizes_target.name, sizes_query.name, 'stdout /dev/null'])
     netSyntenic = ' '.join([os.path.join(KENT_TOOLS_PREFIX,'netSyntenic'), 'stdin stdout'])
-    #netFilter = ' '.join([os.path.join(KENT_TOOLS_PREFIX,'netFilter'), '-minGap=10 stdin >', os.path.join(WORKING_DIR, output)])
-    netFilter = ' '.join([os.path.join(KENT_TOOLS_PREFIX,'netFilter'), '-syn stdin >', os.path.join(WORKING_DIR, output)])
-    command = ' | '.join([axtChain, chainAntiRepeat, chainPreNet, chainNet, netSyntenic, netFilter])
+    netClass = ' '.join([os.path.join(KENT_TOOLS_PREFIX,'netClass'), ' -verbose=0 -noAr', 'stdin', 'markdEmptyForNetClass', 'markdEmptyForNetClass', 'stdout'])
+    netFilter = ' '.join([os.path.join(KENT_TOOLS_PREFIX,'netFilter'), '-minGap=10 stdin >', os.path.join(WORKING_DIR, output)])
+    #netFilter = ' '.join([os.path.join(KENT_TOOLS_PREFIX,'netFilter'), '-syn stdin >', os.path.join(WORKING_DIR, output)])
+    command = ' | '.join([chainAntiRepeat, chainPreNet, chainNet, netSyntenic, netFilter])
+    #command = ' | '.join([chainAntiRepeat, chainPreNet, chainNet, netSyntenic, netClass, netFilter])
     subprocess.check_call(command, shell=True) 
     sizes_query.close()
     sizes_target.close()
