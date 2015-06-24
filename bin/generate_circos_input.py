@@ -2,6 +2,7 @@
 
 import sys
 import numpy
+import argparse
 from collections import Counter
 
 old_prefix2 = 'chr'
@@ -61,10 +62,12 @@ if __name__ == '__main__':
         print 'USAGE:', sys.argv[0], 'blocks.txt', 'circos.txt', 'n'
         print 'n - the number of top blocks (by length)'
         exit()
-    input = sys.argv[1]
-    output = sys.argv[2]
-    n = int(sys.argv[3])
-    blocks = parse_blocks(input)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('input')
+    parser.add_argument('output') 
+    parser.add_argument('n') 
+    args = parser.parse_args()
+    blocks = parse_blocks(args.input)
     #top = blocks
     top = sort_by_lengths(blocks)
-    output_for_circos(top, output)
+    output_for_circos(top, args.output)

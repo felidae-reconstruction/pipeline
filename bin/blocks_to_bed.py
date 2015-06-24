@@ -81,7 +81,7 @@ def write_beds_with_rgb(r, blocks, output_bed_file) :
             top_scaffolds.append(entry[0]+'-'+str(entry[2]))
             blocks_as_entries.append(entries)
         top_scaffolds = sorted(top_scaffolds, key=lambda x: int(x.split('-')[1]), reverse=True)
-        print top_scaffolds[:10]
+        #print top_scaffolds[:10]
     with open(output_bed_file,'w') as f:
         for i in range(k):
             r = random.randint(0,255)

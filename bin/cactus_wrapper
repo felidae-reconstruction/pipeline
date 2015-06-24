@@ -1,18 +1,20 @@
-#!/usr/bin/python
+#!/hive/groups/recon/local/bin/python
 
 from ConfigParser import SafeConfigParser
 import os
 import sys
+import argparse
 import cactus_runner
 from utils import *
 
-parser = SafeConfigParser()
-parser.read('../etc/pipeline.config')
+def get_working_dir(parser):
+    DATA_ROOT = parser.get('environment','DATA_ROOT')
+    VERSION = parser.get('environment','VERSION')
+    NAME=parser.get('environment','NAME')
+    return os.path.join(DATA_ROOT, NAME, VERSION, 'cactus')
 
-DATA_ROOT = parser.get('environment','DATA_ROOT')
-VERSION = parser.get('environment','VERSION')
-NAME=parser.get('environment','NAME')
-PATH_TO_WORKING_DIR = os.path.join(DATA_ROOT, NAME, VERSION, 'cactus')
+def get_version(parser):
+    return parser.get('environment','VERSION')
 
 def run_cactus() :
     print 'starting wrapper for cactus', sys.argv[0], '...'
@@ -22,4 +24,9 @@ def run_cactus() :
     cactus_runner.run(config, PATH_TO_WORKING_DIR, hal)
 
 if __name__ == '__main__' :
-	run_cactus()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('config')
+    args = parser.parse_args()
+    config_parser = SafeConfigParser()
+    config_parser.read(args.config)
+	run_cactus(get_working_dir(config_parser), get_version(config_parser))

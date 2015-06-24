@@ -6,18 +6,23 @@ import subprocess
 import sys
 import rearrangements_runner
 import utils
+import argparse
 
-parser = SafeConfigParser()
-parser.read('../etc/pipeline.config')
+def get_working_dir(parser):
+    DATA_ROOT = parser.get('environment','DATA_ROOT')
+    NAME=parser.get('environment','NAME')
+    VERSION = parser.get('environment','VERSION')
+    FOLDER_NAME=parser.get('environment','FOLDER_NAME')
+    return os.path.join(DATA_ROOT, 'comparative', NAME, VERSION, FOLDER_NAME)
 
-DATA_ROOT = parser.get('environment','DATA_ROOT')
-VERSION = parser.get('environment','VERSION')
-NAME=parser.get('environment','NAME')
-FOLDER_NAME=parser.get('environment','FOLDER_NAME')
-SIZES_FOLDER=parser.get('environment','SIZES_FOLDER')
-MAF=parser.get('environment','MAF')
-SPECIES=parser.get('environment','SPECIES')
-PATH_TO_WORKING_DIR = os.path.join(DATA_ROOT, 'comparative', NAME, VERSION, FOLDER_NAME)
+def get_maf(parser):
+    return parser.get('environment','MAF') 
+
+def get_sizes(parser):
+    return parser.get('environment','SIZES_FOLDER')
+
+def get_species(parser):
+    return parser.get('environment','SPECIES')
 
 def run_cactus() :
     print 'starting wrapper for cactus', sys.argv[0], '...'
@@ -25,4 +30,9 @@ def run_cactus() :
     rearrangements_runner.run(PATH_TO_WORKING_DIR, MAF, SIZES_FOLDER, SPECIES)
 
 if __name__ == '__main__' :
-	run_cactus()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('config')
+    args = parser.parse_args()
+    config_parser = SafeConfigParser()
+    config_parser.read(args.config)
+    run_cactus(get_working_dir(config_parser), get_maf(config_parser), get_sizes(config_parser), get_species(config_parser))

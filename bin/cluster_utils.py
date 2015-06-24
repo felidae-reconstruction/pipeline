@@ -46,7 +46,7 @@ def get_sizes(species, hal) :
     return sizes
 
 def run_joblist(joblist):
-    subprocess.check_call(['para', 'make', joblist, '-ram=8g'])
+    subprocess.check_call(['para', 'make', joblist, '-ram=16g'])
     subprocess.check_call(['para', 'push'])
     subprocess.check_call(['para', 'check'])
 
