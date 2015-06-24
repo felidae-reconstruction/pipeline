@@ -1,0 +1,25 @@
+#!/hive/groups/recon/local/bin/python
+"""
+Map PSL alignments from one genome to another using UCSC genomic chain alignments.
+"""
+import subprocess
+import tempfile
+import argparse
+import os
+
+	pslMap -mapFileWithInQName -mapInfo=${TRANSMAP_DATA_DIR}/transMap$*.block.mapinfo ${SRC_GENCODE_DATA_DIR}/wgEncode$*.psl $< /dev/stdout \
+		| sort -k 14,14 -k 16,16n \
+		| pslRecalcMatch /dev/stdin ${targetTwoBit} ${SRC_GENCODE_DATA_DIR}/wgEncode$*.fa $@.${tmpExt}
+
+
+
+
+def parseArgs():
+     parser = argparse.ArgumentParser()
+     parser.add_argument('query_psl', help="source pSL file")
+     parser.add_argument('query_fa', help="fasta associated with query PSL")
+     parser.add_argument('mapping_chains', help="chain file between genmose")
+     parser.add_argument('target_genome',help='2bit file')
+     parser.add_argument('target_psl',help='psl of mapped transcripts on target genome ')
+     args = parser.parse_args()
+     

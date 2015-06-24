@@ -7,7 +7,7 @@ import argparse
 import os
 import utils
 
-BIN_DIR='/hive/groups/recon/projs/felidae/git_pipeline/pipeline/bin'
+BIN_DIR = os.path.normpath(os.path.dirname(sys.argv[0]))
 
 parser = SafeConfigParser()
 parser.read('../etc/chaining.config')
