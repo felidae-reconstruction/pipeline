@@ -1,7 +1,11 @@
 #!/hive/groups/recon/local/bin/python
+'''
+script for calculation and drawing the length distribution for different coverage values
+'''
 
 import bisect
 import sys
+import argparse
 import matplotlib
 matplotlib.use('Agg')
 from matplotlib.backends.backend_pdf import PdfPages
@@ -75,10 +79,9 @@ def process_coverage(covs,lengths):
          
 
 if __name__ == '__main__' :
-    if len(sys.argv) < 2:
-        print 'script for calculation and drawing the length distribution for different coverage values'
-        print 'USAGE:', sys.argv[0], 'file in bed format having four columns - the last one is the coverage values'
-    file = sys.argv[1]
-    covs,lengths = extract_coverage(file, True)
+    parser = argparse.ArgumentParser()
+    parser.add_argument(file,help='file in bed format having four columns - the last one is the coverage values')
+    args = parser.parse_args()
+    covs,lengths = extract_coverage(args.file, True)
     print utils.get_time()
     process_coverage(covs,lengths)

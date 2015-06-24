@@ -6,6 +6,7 @@
 
 import sys
 import numpy
+import argparse
 
 #genome_id is one-based
 def parse_mgr_micro(path, genome_id) :
@@ -39,9 +40,11 @@ def parse_mgr_micro(path, genome_id) :
 
 
 if __name__ == '__main__':
-    path = sys.argv[1]
-    genome_id = int(sys.argv[2])
-    anchor_lengths, block_lengths = parse_mgr_micro(path, genome_id)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('path')
+    parser.add_argument('genome_id')
+    args = parser.parse_args()
+    anchor_lengths, block_lengths = parse_mgr_micro(args.path, int(args.genome_id))
     rates = [a/b for a,b in zip(anchor_lengths, block_lengths)]
     print 'min density', min(rates)
     print 'max density', max(rates)
