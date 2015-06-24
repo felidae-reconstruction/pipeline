@@ -113,8 +113,9 @@ def output_with_repeats(blocks, unique_species, species_to_output, output_file) 
             if set(species_to_output).issubset(set(block.get_species())) :
                 strings = block.to_strings_with_repeats(unique_species,species_to_output)
                 for s in strings:
-                    id += 1
-                    f.write(str(id) +' '+ s+'\n')
+                    #id += 1
+                    #f.write(str(id) +' '+ s+'\n')
+                    f.write('0 '+ s+'\n')
     
 def output_without_repeats(blocks, unique_species, species_to_output, output_file) :
     with open(output_file, 'w') as f:
