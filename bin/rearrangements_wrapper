@@ -35,4 +35,4 @@ if __name__ == '__main__' :
     args = parser.parse_args()
     config_parser = SafeConfigParser()
     config_parser.read(args.config)
-    run_cactus(get_working_dir(parser), get_maf(parser), get_sizes(parser), get_species(parser))
+    run_cactus(get_working_dir(config_parser), get_maf(config_parser), get_sizes(config_parser), get_species(config_parser))
