@@ -28,10 +28,12 @@ def create_bigBed(grimm_synt_output, sizes_folder, species_file):
 	
 def run(dir, maf, sizes_folder, species_file):
     grimm_synt_input_file = os.path.join(dir, utils.get_name(maf)+'.grimm_synt')
+   
     print utils.get_time()
     print 'converting maf to input for grimm...'
     params = ['./generate_input_grimm_synt', maf, sizes_folder, grimm_synt_input_file, species_file]
     subprocess.check_call(params)
+    
     print utils.get_time()
     print 'generating anchors for grimm_synt...'
     anchors_folder = os.path.join(dir,'grimm_synt_anchors')
@@ -44,19 +46,20 @@ def run(dir, maf, sizes_folder, species_file):
     utils.create_dir_if_not_exists(grimm_synt_output)
     #used this for comparing mhc regions
     #params = ['grimm_synt','-f', os.path.join(anchors_folder, 'unique_coords.txt'),'-d',grimm_synt_output, '-m 1000 -g 1000 -c']
-    params = ['grimm_synt','-f', os.path.join(anchors_folder, 'unique_coords.txt'),'-d',grimm_synt_output,'-m', '300000', '-g', '300000', '-c']
+    #params = ['grimm_synt','-f', os.path.join(anchors_folder, 'unique_coords.txt'),'-d',grimm_synt_output,'-m', '300000', '-g', '300000', '-c']
+    params = ['grimm_synt','-f', os.path.join(anchors_folder, 'unique_coords.txt'),'-d',grimm_synt_output,'-m', '100000', '-g', '100000', '-c']
     subprocess.check_call(params)
     print 'synteny blocks are at',os.path.join(grimm_synt_output,'blocks.txt')
     print utils.get_time()
     print 'creating bigBed files...'
     create_bigBed(grimm_synt_output, sizes_folder, species_file)
     print utils.get_time()
-    '''print 'running grimm...'
+    print 'running grimm...'
     params = ['grimm', '-f', os.path.join(grimm_synt_output,'mgr_macro.txt'), '-o', os.path.join(dir,'grimm.output')]
     subprocess.call(" ".join(params), shell=True)
     print 'grimm output is saved to', os.path.join(dir,'grimm.output')
     print utils.get_time()
-    '''
+    
     print 'done.'
     
 	

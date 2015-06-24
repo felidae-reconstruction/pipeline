@@ -1,0 +1,28 @@
+#!/hive/groups/recon/local/bin/python
+
+from ConfigParser import SafeConfigParser
+import os
+import subprocess
+import sys
+import rearrangements_runner
+import utils
+
+parser = SafeConfigParser()
+parser.read('../etc/pipeline.config')
+
+DATA_ROOT = parser.get('environment','DATA_ROOT')
+VERSION = parser.get('environment','VERSION')
+NAME=parser.get('environment','NAME')
+FOLDER_NAME=parser.get('environment','FOLDER_NAME')
+SIZES_FOLDER=parser.get('environment','SIZES_FOLDER')
+MAF=parser.get('environment','MAF')
+SPECIES=parser.get('environment','SPECIES')
+PATH_TO_WORKING_DIR = os.path.join(DATA_ROOT, 'comparative', NAME, VERSION, FOLDER_NAME)
+
+def run_cactus() :
+    print 'starting wrapper for cactus', sys.argv[0], '...'
+    utils.create_dir_if_not_exists(PATH_TO_WORKING_DIR)
+    rearrangements_runner.run(PATH_TO_WORKING_DIR, MAF, SIZES_FOLDER, SPECIES)
+
+if __name__ == '__main__' :
+	run_cactus()
