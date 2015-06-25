@@ -2,12 +2,15 @@
 
 Ensembl 80 has only FelCat 6.2 so we must map them to FelCat 8.
 
-First convert to genePred, using liftUp to convert UCSC to chromosome names. Sanity check conversion.
-    cd /hive/groups/recon/projs/felidae/pipeline_data/gene_annotation/FelisCatus/8.0/ensembl80
-    wget -nv ftp://ftp.ensembl.org/pub/release-80/gtf/felis_catus/Felis_catus.Felis_catus_6.2.80.gtf.gz
-    gtfToGenePred -genePredExt -includeVersion -infoOut=Felis_catus.Felis_catus_6.2.80.info Felis_catus.Felis_catus_6.2.80.gtf.gz stdout | liftUp -type=.gp -extGenePred Felis_catus.Felis_catus_6.2.80.gp /hive/data/genomes/felCat5/jkStuff/ensToUcsc.lift error stdin
-    genePredCheck db=felCat5 Felis_catus.Felis_catus_6.2.80.gp 
-    genePredToFakePsl felCat5 Felis_catus.Felis_catus_6.2.80.gp Felis_catus.Felis_catus_6.2.80.psl Felis_catus.Felis_catus_6.2.80.cds
+First convert to genePred, using liftUp to convert UCSC to chromosome names.
+
+````
+cd /hive/groups/recon/projs/felidae/pipeline_data/gene_annotation/FelisCatus/8.0/ensembl80
+wget -nv ftp://ftp.ensembl.org/pub/release-80/gtf/felis_catus/Felis_catus.Felis_catus_6.2.80.gtf.gz
+gtfToGenePred -genePredExt -includeVersion -infoOut=Felis_catus.Felis_catus_6.2.80.info Felis_catus.Felis_catus_6.2.80.gtf.gz stdout | liftUp -type=.gp -extGenePred Felis_catus.Felis_catus_6.2.80.gp /hive/data/genomes/felCat5/jkStuff/ensToUcsc.lift error stdin
+genePredCheck db=felCat5 Felis_catus.Felis_catus_6.2.80.gp 
+genePredToFakePsl felCat5 Felis_catus.Felis_catus_6.2.80.gp Felis_catus.Felis_catus_6.2.80.psl Felis_catus.Felis_catus_6.2.80.cds
+````
 
 
 map to new assemply
