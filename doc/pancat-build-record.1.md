@@ -3,7 +3,6 @@
 Ensembl 80 has only FelCat 6.2 so we must map them to FelCat 8.
 
 First convert to genePred, using liftUp to convert UCSC to chromosome names.
-
 ````
 cd /hive/groups/recon/projs/felidae/pipeline_data/gene_annotation/FelisCatus/8.0/ensembl80
 wget -nv ftp://ftp.ensembl.org/pub/release-80/gtf/felis_catus/Felis_catus.Felis_catus_6.2.80.gtf.gz
@@ -14,9 +13,11 @@ genePredToFakePsl felCat5 Felis_catus.Felis_catus_6.2.80.gp Felis_catus.Felis_ca
 
 
 map to new assemply
-    pslMap -chainMapFile -swapMap  Felis_catus.Felis_catus_6.2.80.psl /hive/data/genomes/felCat5/bed/blat.felCat8.2014-12-05/felCat5ToFelCat8.over.chain.gz Felis_catus_6.2.80.mapped_8.0.raw.psl -mapInfo=Felis_catus_6.2.80.mapped_8.0.raw.mapinfo
-    mrnaToGene -quiet -keepInvalid -insertMergeSize=-1 -cdsFile=Felis_catus.Felis_catus_6.2.80.cds Felis_catus_6.2.80.mapped_8.0.psl Felis_catus_6.2.80.mapped_8.0.gp
-    pslCDnaFilter  -filterWeirdOverlapped -maxAligns=1 Felis_catus_6.2.80.mapped_8.0.raw.psl  Felis_catus_6.2.80.mapped_8.0.psl
+````
+pslMap -chainMapFile -swapMap  Felis_catus.Felis_catus_6.2.80.psl /hive/data/genomes/felCat5/bed/blat.felCat8.2014-12-05/felCat5ToFelCat8.over.chain.gz Felis_catus_6.2.80.mapped_8.0.raw.psl -mapInfo=Felis_catus_6.2.80.mapped_8.0.raw.mapinfo
+mrnaToGene -quiet -keepInvalid -insertMergeSize=-1 -cdsFile=Felis_catus.Felis_catus_6.2.80.cds Felis_catus_6.2.80.mapped_8.0.psl Felis_catus_6.2.80.mapped_8.0.gp
+pslCDnaFilter  -filterWeirdOverlapped -maxAligns=1 Felis_catus_6.2.80.mapped_8.0.raw.psl  Felis_catus_6.2.80.mapped_8.0.psl
+````
 
                     | seqs	| aligns
              -----------------------
@@ -27,13 +28,17 @@ map to new assemply
             kept:	| 22654	|  22654
 
 statistics on mappings
-    pslStats Felis_catus_6.2.80.mapped_8.0.psl  Felis_catus_6.2.80.mapped_8.0.stats
-    textHistogram -noStar -real -binSize=0.1 -col=7 Felis_catus_6.2.80.mapped_8.0.stats >Felis_catus_6.2.80.mapped_8.0.coverage-histo
+````
+pslStats Felis_catus_6.2.80.mapped_8.0.psl  Felis_catus_6.2.80.mapped_8.0.stats
+textHistogram -noStar -real -binSize=0.1 -col=7 Felis_catus_6.2.80.mapped_8.0.stats >Felis_catus_6.2.80.mapped_8.0.coverage-histo
+````
 
 This is a solid mapping, however there are 431 genes that map with less than
 90% coverage.  Suspect this is due to the poor quality of the gene
 annotations.  Take a look at the gene feature tests:
-    /hive/groups/recon/local/bin/gene-check --allow-non-coding --genome-seqs=/hive/data/genomes/felCat5/felCat5.2bit Felis_catus.Felis_catus_6.2.80.gp Felis_catus.Felis_catus_6.2.80.genecheck
-    ~markd/compbio/code/pycbio/bin/geneCheckStats  Felis_catus.Felis_catus_6.2.80.genecheck  Felis_catus.Felis_catus_6.2.80.genecheck-stats
-    /hive/groups/recon/local/bin/gene-check --allow-non-coding --genome-seqs=/hive/data/genomes/felCat8/felCat8.2bit Felis_catus_6.2.80.mapped_8.0.gp Felis_catus_6.2.80.mapped_8.0.genecheck
-    ~markd/compbio/code/pycbio/bin/geneCheckStats  Felis_catus_6.2.80.mapped_8.0.genecheck  Felis_catus_6.2.80.mapped_8.0.genecheck-stats
+````
+/hive/groups/recon/local/bin/gene-check --allow-non-coding --genome-seqs=/hive/data/genomes/felCat5/felCat5.2bit Felis_catus.Felis_catus_6.2.80.gp Felis_catus.Felis_catus_6.2.80.genecheck
+~markd/compbio/code/pycbio/bin/geneCheckStats  Felis_catus.Felis_catus_6.2.80.genecheck  Felis_catus.Felis_catus_6.2.80.genecheck-stats
+/hive/groups/recon/local/bin/gene-check --allow-non-coding --genome-seqs=/hive/data/genomes/felCat8/felCat8.2bit Felis_catus_6.2.80.mapped_8.0.gp Felis_catus_6.2.80.mapped_8.0.genecheck
+~markd/compbio/code/pycbio/bin/geneCheckStats  Felis_catus_6.2.80.mapped_8.0.genecheck  Felis_catus_6.2.80.mapped_8.0.genecheck-stats
+````
