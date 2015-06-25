@@ -1,4 +1,4 @@
-# 2015-06-24 markd: Ensembl 80 annotations
+## 2015-06-24 markd: Ensembl 80 annotations
 
 Ensembl 80 has only FelCat 6.2 so we must map them to FelCat 8.
 
