@@ -9,14 +9,16 @@ wget -nv ftp://ftp.ensembl.org/pub/release-80/gtf/felis_catus/Felis_catus.Felis_
 gtfToGenePred -genePredExt -includeVersion -infoOut=Felis_catus.Felis_catus_6.2.80.info Felis_catus.Felis_catus_6.2.80.gtf.gz stdout | liftUp -type=.gp -extGenePred Felis_catus.Felis_catus_6.2.80.gp /hive/data/genomes/felCat5/jkStuff/ensToUcsc.lift error stdin
 genePredCheck db=felCat5 Felis_catus.Felis_catus_6.2.80.gp 
 genePredToFakePsl felCat5 Felis_catus.Felis_catus_6.2.80.gp Felis_catus.Felis_catus_6.2.80.psl Felis_catus.Felis_catus_6.2.80.cds
+getRnaPred -genePredExt felCat5 Felis_catus.Felis_catus_6.2.80.gp all Felis_catus.Felis_catus_6.2.80.fa
 ````
 
 
 map to new assemply
 ````
 pslMap -chainMapFile -swapMap  Felis_catus.Felis_catus_6.2.80.psl /hive/data/genomes/felCat5/bed/blat.felCat8.2014-12-05/felCat5ToFelCat8.over.chain.gz Felis_catus_6.2.80.mapped_8.0.raw.psl -mapInfo=Felis_catus_6.2.80.mapped_8.0.raw.mapinfo
-mrnaToGene -quiet -keepInvalid -insertMergeSize=-1 -cdsFile=Felis_catus.Felis_catus_6.2.80.cds Felis_catus_6.2.80.mapped_8.0.psl Felis_catus_6.2.80.mapped_8.0.gp
-pslCDnaFilter  -filterWeirdOverlapped -maxAligns=1 Felis_catus_6.2.80.mapped_8.0.raw.psl  Felis_catus_6.2.80.mapped_8.0.psl
+pslCDnaFilter  -filterWeirdOverlapped -maxAligns=1 Felis_catus_6.2.80.mapped_8.0.raw.psl  Felis_catus_6.2.80.mapped_8.0.psl Felis_catus_6.2.80.mapped_8.0.psl
+mrnaToGene -quiet -keepInvalid -genePredExt -insertMergeSize=-1 -cdsFile=Felis_catus.Felis_catus_6.2.80.cds Felis_catus_6.2.80.mapped_8.0.psl Felis_catus_6.2.80.mapped_8.0.gp
+getRnaPred -genePredExt felCat8 Felis_catus_6.2.80.mapped_8.0.gp all Felis_catus_6.2.80.mapped_8.0.fa
 ````
 
                     | seqs	| aligns

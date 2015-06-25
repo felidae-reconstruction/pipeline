@@ -2,24 +2,28 @@
 """
 Map PSL alignments from one genome to another using UCSC genomic chain alignments.
 """
-import subprocess
-import tempfile
 import argparse
 import os
-
-	pslMap -mapFileWithInQName -mapInfo=${TRANSMAP_DATA_DIR}/transMap$*.block.mapinfo ${SRC_GENCODE_DATA_DIR}/wgEncode$*.psl $< /dev/stdout \
-		| sort -k 14,14 -k 16,16n \
-		| pslRecalcMatch /dev/stdin ${targetTwoBit} ${SRC_GENCODE_DATA_DIR}/wgEncode$*.fa $@.${tmpExt}
-
+import sys
+sys.path.insert(0, "/hive/groups/recon/local/pycbio/lib")
+from pycbio.sys import procOps
 
 
+def runTransMap(query_psl, query_fa, mapping_chains, target_genome, target_psl):
+     # psl map via chains, sort maps psls into target order to speed up pslRecalcMatch"
+     procOps.runProc([("pslMap", "-chainMapFile", "-swapMap", query_psl, mapping_chains, "/dev/stdout"),
+                      ("sort", "-k", "14,14", "-k", "16,16n"),
+                      ("pslRecalcMatch", "/dev/stdin", target_genome, query_fa, target_psl)])
 
 def parseArgs():
-     parser = argparse.ArgumentParser()
+     parser = argparse.ArgumentParser(description=__doc__)
      parser.add_argument('query_psl', help="source pSL file")
      parser.add_argument('query_fa', help="fasta associated with query PSL")
      parser.add_argument('mapping_chains', help="chain file between genmose")
      parser.add_argument('target_genome',help='2bit file')
-     parser.add_argument('target_psl',help='psl of mapped transcripts on target genome ')
-     args = parser.parse_args()
+     parser.add_argument('target_psl',help='output psl of mapped transcripts on target genome ')
+     return parser.parse_args()
+
+args = parseArgs()
      
+runTransMap(args.query_psl, args.query_fa, args.mapping_chains, args.target_genome, args.target_psl)
