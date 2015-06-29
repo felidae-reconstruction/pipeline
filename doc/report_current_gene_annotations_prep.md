@@ -85,13 +85,14 @@ PARTIALLY OK CLUSTERS 4 - 1.04438642298 %
 BAD CLUSTERS 118 - 30.8093994778 %
 
 * mRNA 
+* 
 Connect to the database and convert to genePred. Don't use bedToGenePred in order to not loose the information
 ```bash 
 hgsql -Ne 'select * from all_mrna' felCat5 | cut -f 2- >Felis_catus_6.2.80.mapped_8.0.psl
 hgsql -Ne 'select acc,cds.name from all_mrna rna, gbCdnaInfo gb, cds where (rna.qName=gb.acc) and (gb.cds = cds.id)' felCat5 >Felis_catus.Felis_catus_6.2.80.cds
 
 mrnaToGene -quiet -keepInvalid -genePredExt -insertMergeSize=-1 -cdsFile=Felis_catus.Felis_catus_6.2.80.cds Felis_catus_6.2.80.psl Felis_catus_6.2.80.gp
-]]]
+```
 ```bash
 ${geneCheck} --allow-non-coding --genome-seqs=${genomeSeqs} --details-out=Felis_catus_6.2.80.gene-check-details Felis_catus_6.2.80.gp Felis_catus_6.2.80.gene-check; ${geneCheckStats} Felis_catus_6.2.80.gene-check Felis_catus_6.2.80.gene-check-stats
 
@@ -99,7 +100,7 @@ clusterGenes -cds Felis_catus_6.2.80.cluster-genes no Felis_catus_6.2.80.gp
 
 ./geneClusterWithBrokenGenesStats /hive/groups/recon/projs/felidae_comp/analysis/gene_annotation/mrna/Felis_catus_6.2.80.gene-check /hive/groups/recon/projs/felidae_comp/analysis/gene_annotation/mrna/Felis_catus_6.2.80.cluster-genes 
 ```
-
+ 
 Output:
 
 OK CLUSTERS: 135 - 22.5 %
