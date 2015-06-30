@@ -11,6 +11,7 @@ annotation is lost
 * Estimate results the paper Tamazian et.al, 2014
 
 .bb files were obtained from the Dobzhansky center hub for cat assembly annotation
+ http://public.dobzhanskycenter.ru/Hub/cat/fc_genes_*.bb
 
 ```bash
 genomeSeqs=/hive/groups/recon/projs/felidae/pipeline_data/assemblies/FelisCatus/2014-11-20/Felis_catus_62_rm_trfbig_dm.2bit
