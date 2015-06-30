@@ -27,6 +27,7 @@ for specie in dog human cow chimp horse macaque rat mouse; do clusterGenes -cds 
 ```
 
 * Estimate ensemble gene annotation
+
 Copy from Mark's results
 
 ```bash
@@ -85,7 +86,7 @@ PARTIALLY OK CLUSTERS 4 - 1.04438642298 %
 BAD CLUSTERS 118 - 30.8093994778 %
 
 * mRNA 
-* 
+ 
 Connect to the database and convert to genePred. Don't use bedToGenePred in order to not loose the information
 ```bash 
 hgsql -Ne 'select * from all_mrna' felCat5 | cut -f 2- >Felis_catus_6.2.80.mapped_8.0.psl
