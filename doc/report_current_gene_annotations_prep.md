@@ -27,6 +27,19 @@ The predictions can overlap. Estimate the gene number counting the overlapped CD
 for specie in dog human cow chimp horse macaque rat mouse; do clusterGenes -cds cluster_genes_${specie}.tab no fc_genes_${specie}.gp; done
 ```
 
+Estimate gene clusters for human
+
+```bash
+./geneClusterWithBrokenGenesStats /hive/groups/recon/projs/felidae_comp/analysis/gene_annotation/gaik_annotation/human.gene-check /hive/groups/recon/projs/felidae_comp/analysis/gene_annotation/gaik_annotation/cluster_genes_human.tab
+```
+Output:
+
+OK CLUSTERS: 31 - 0.23075777877 %
+
+PARTIALLY OK CLUSTERS 203 - 1.51109126098 %
+
+BAD CLUSTERS 13199 - 98.2507071609 %
+
 * Estimate ensemble gene annotation
 
 Copy from Mark's results
